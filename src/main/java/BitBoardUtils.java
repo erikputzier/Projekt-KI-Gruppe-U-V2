@@ -66,8 +66,9 @@ public final class BitBoardUtils {
     /**
      * Method to check if the Player who has just made a move has won the game.
      *
-     * @param
-     * @return boolean
+     * @param board  Board which is checked for a winner.
+     * @param player Player who has just made a move.
+     * @return boolean true if the player has won the game, false if not.
      */
     public static boolean checkplayerWon(Board board, Player player) {
         long playerMask;
@@ -175,99 +176,6 @@ public final class BitBoardUtils {
 
         return returnBoard;
     }
-
-    /**
-     public static Board makeMove(MovePair move, Board board) {
-     long to = (1L << move.getTo());
-
-     long from = (1L << move.getFrom());
-     long friendly = 0;
-     long enemy = 0;
-
-     if (board.getCurrentPlayer() == Player.BLUE) {
-     friendly = board.getBlue();
-     enemy = board.getRed();
-     } else {
-     friendly = board.getRed();
-     enemy = board.getBlue();
-     }
-
-
-     Board returnBoard = board.copy();
-
-     // Löschung der "from"-Position aus Stacks
-     int n = move.getHeight();
-     for (int i = 6; i >= 0; i--) {
-     if ((returnBoard.getStack(i) & from) != 0) {
-     returnBoard.setStack(i, returnBoard.getStack(i) ^ from);
-     n--;
-     }
-     if (n == 0) break;
-     }
-     //update friendly to include the removal of the "from" position
-     if (board.getCurrentPlayer() == Player.BLUE) {
-     returnBoard.setBlue(returnBoard.getBlue() & returnBoard.getStack(0));
-     } else {
-     returnBoard.setRed(returnBoard.getRed() & returnBoard.getStack(0));
-     }
-
-
-     //delete beaten enemy Stack
-     for (int i = 0; i < 7; i++) {
-     returnBoard.setStack(i, (returnBoard.getStack(i) & enemy & ~to) | (friendly & returnBoard.getStack(i)));
-     }
-     //update enemy to include the removal of beaten stack
-     if (board.getCurrentPlayer() == Player.BLUE) {
-     returnBoard.setRed(enemy & returnBoard.getStack(0));
-     } else {
-     returnBoard.setBlue((enemy & returnBoard.getStack(0)));
-     }
-
-
-     //increase Stacks which player who moved owns
-     n = move.getHeight();
-     for (int i = 0; i < 7; i++) {
-     //If there is no bit present at the "to" position the | operation will lead to that bit being added which means the height of the Stack at that position will be increased by 1
-     if ((returnBoard.getStack(i) | to) != returnBoard.getStack(i)) {
-     returnBoard.setStack(i, returnBoard.getStack(i) | to);
-     n--;
-     }
-     if (n == 0) {
-     break;
-     }
-     }
-
-     //update friendly to include the increased Stack
-     if (board.getCurrentPlayer() == Player.BLUE) {
-     returnBoard.setBlue(returnBoard.getStack(0) ^ returnBoard.getRed());
-     } else {
-     returnBoard.setRed(returnBoard.getStack(0) ^ returnBoard.getBlue());
-     }
-
-
-     long guards = returnBoard.getGuards();
-     if ((guards & from) != 0) {
-     guards = (guards ^ from) | to; // Guard wird bewegt
-     } else if (((enemy & to) != 0) && ((guards & to) != 0)) {
-     guards = guards ^ to; // Gegnerischer Guard wird geschlagen
-     }
-     returnBoard.setGuards(guards);
-
-     //update currentPlayer
-     if (board.getCurrentPlayer() == Player.BLUE) {
-     returnBoard.setCurrentPlayer(Player.RED);
-     } else if (board.getCurrentPlayer() == Player.RED) {
-     returnBoard.setCurrentPlayer(Player.BLUE);
-     }
-     if((returnBoard.getGuards() & ~((1L << 49) -1)) == 0){
-     System.out.println("FEHLER");
-     board.printBoard();
-     returnBoard.printBoard();
-     System.out.println(move);
-     }
-     return returnBoard;
-     }
-     */
 
     /**
      * Generates all Legal Moves in all Directions for a specific player. Boundary Conflicts and jumping violations are handled in generateMovesInDirection.
@@ -481,8 +389,7 @@ public final class BitBoardUtils {
          */
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof MovePair)) return false;
-            MovePair p = (MovePair) o;
+            if (!(o instanceof MovePair p)) return false;
             return this.from == p.from && this.to == p.to && this.height == p.height;
         }
 
@@ -597,5 +504,4 @@ public final class BitBoardUtils {
         }
         return best;
     }
-
 }
