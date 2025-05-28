@@ -70,9 +70,9 @@ public final class BitBoardUtils {
      * @return boolean
      */
     public static boolean checkplayerWon(Board board, Player player) {
-        long playerMask = 0;
-        long enemyCastle = 0;
-        long enemyMask = 0;
+        long playerMask;
+        long enemyCastle;
+        long enemyMask;
         if (player == Player.BLUE) {
             playerMask = board.getBlue();
             enemyMask = board.getRed();
@@ -92,8 +92,8 @@ public final class BitBoardUtils {
         long to = (1L << move.getTo());
 
         long from = (1L << move.getFrom());
-        long friendly = 0;
-        long enemy = 0;
+        long friendly;
+        long enemy;
 
         if (board.getCurrentPlayer() == Player.BLUE) {
             friendly = board.getBlue();
@@ -307,9 +307,9 @@ public final class BitBoardUtils {
     private List<MovePair> generateMovesInDirection(long fromBits, long empty, String dir, int height, Board board) {
         List<MovePair> moves = new ArrayList<>();
         long shifted;
-        int shift = 0;
-        long friendly = 0;
-        long enemy = 0;
+        int shift;
+        long friendly;
+        long enemy;
         if (board.getCurrentPlayer() == Player.BLUE) {
             friendly = board.getBlue();
             enemy = board.getRed();
@@ -355,7 +355,7 @@ public final class BitBoardUtils {
         //extract from -> to sequences from shifted Bitboard
         while (shifted != 0) {
             int to = Long.numberOfTrailingZeros(shifted);
-            int from = 0;
+            int from;
             if (dir.equals("S") || dir.equals("E")) {
                 from = to + shift;
             } else {
