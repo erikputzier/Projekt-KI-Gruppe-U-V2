@@ -101,7 +101,7 @@ public final class FenUtils {
         /* ------------------------ render ------------------------ */
         for (int r = 0; r < SIZE; r++) {
             System.out.print((SIZE - r) + " │ ");
-            for (int f = 0; f < SIZE; f++) System.out.print(String.format("%-3s", grid[r][f]));
+            for (int f = 0; f < SIZE; f++) System.out.printf("%-3s", grid[r][f]);
             System.out.println();
         }
         System.out.println("  └" + "─".repeat(SIZE * 3));

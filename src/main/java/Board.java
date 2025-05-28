@@ -156,14 +156,14 @@ public class Board {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Board) || o == null) {
+        if (!(o instanceof Board)) {
             return false;
         }
-        Boolean guardsEqual = this.guards == ((Board) o).getGuards();
-        Boolean blueEqual = this.blue == ((Board) o).getBlue();
-        Boolean redEqual = this.red == ((Board) o).getRed();
-        Boolean currentPlayerEqual = this.currentPlayer == ((Board) o).getCurrentPlayer();
-        Boolean stacksEqual = true;
+        boolean guardsEqual = this.guards == ((Board) o).getGuards();
+        boolean blueEqual = this.blue == ((Board) o).getBlue();
+        boolean redEqual = this.red == ((Board) o).getRed();
+        boolean currentPlayerEqual = this.currentPlayer == ((Board) o).getCurrentPlayer();
+        boolean stacksEqual = true;
         for (int i = 0; i < 7; i++) {
             stacksEqual = stacksEqual && this.stacks[i] == ((Board) o).getStack(i);
         }
@@ -179,7 +179,6 @@ public class Board {
 
 
     public void printBoard() {
-        final int BOARD_SIZE = 7;
         System.out.println("Aktueller Spielstand:");
 
         for (int i = 48; i >= 0; i--) {
@@ -222,9 +221,8 @@ public class Board {
     }
 
     /**
-     * @param board  from which the number of pieces should be calculated
      * @param player for which the number of pieces should be calculated
-     * @return
+     * @return returns the number of pieces of the given player on the board
      */
     public int numPieces(Player player) {
         int numPiece = 0;
