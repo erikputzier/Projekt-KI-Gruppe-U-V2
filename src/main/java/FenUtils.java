@@ -29,7 +29,7 @@ public final class FenUtils {
      * @param fen full FEN string (board+side to move)
      * @return list of legal moves for the side to move
      */
-    public static List<BitBoardUtils.MovePair> generateLegalMovesFromFen(String fen) {
+    public static List<MovePair> generateLegalMovesFromFen(String fen) {
         if (fen == null || fen.isBlank()) throw new IllegalArgumentException("FEN must not be null/empty");
 
         String[] parts = fen.trim().split("\\s+");
@@ -218,7 +218,7 @@ public final class FenUtils {
         printBoard(fen);
 
         // Generate and print all legal moves
-        List<BitBoardUtils.MovePair> moves = generateLegalMovesFromFen(fen);
+        List<MovePair> moves = generateLegalMovesFromFen(fen);
         System.out.println("\nLegal moves for '" + fen.charAt(fen.length() - 1) + "':");
         moves.forEach(mp -> System.out.println(mp.toMove() + " -> " + mp.toMove().toAlgebraic()));
         System.out.println(moves.size() + " moves in total");

@@ -43,7 +43,7 @@ public final class BitBoardUtils {
         // start global timer only ONCE
         long startTime = System.currentTimeMillis();
 
-        for (BitBoardUtils.MovePair move : legalMoves) {
+        for (MovePair move : legalMoves) {
             Board newBoard = BitBoardUtils.makeMove(move, board.copy());
 
             int eval = minimaxAlphaBeta(newBoard, 1000);
@@ -356,49 +356,7 @@ public final class BitBoardUtils {
     /**
      * Hilfsklasse um Züge besser speichern zu können
      */
-    record MovePair(int from, int to, int height) {
-        /**
-         * Konstruktor der Klasse MovePair
-         *
-         * @param from int-Repräsentation des Start-Feldes eines Zuges
-         * @param to   int-Repräsentation des End-Feldes eines Zuges
-         */
-        MovePair {
-        }
 
-        /**
-         * Methode um MovePairs miteinander zu vergleichen
-         *
-         * @param o anderes MovePair, mit dem dieses vergleichen werden soll
-         * @return Boolscher Wert der angibt ob die beiden MovePairs die Instanzvariablen der beiden MovePairs gleich sind
-         */
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof MovePair p)) return false;
-            return this.from == p.from && this.to == p.to && this.height == p.height;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = Integer.hashCode(from);
-            result = 31 * result + Integer.hashCode(to);
-            result = 31 * result + Integer.hashCode(height);
-            return result;
-        }
-
-        public Move toMove() {
-            int fromCol = 6 - (this.from % BOARD_SIZE);
-            int fromRow = 6 - (this.from / BOARD_SIZE);
-            int toCol = 6 - (this.to % BOARD_SIZE);
-            int toRow = 6 - (this.to / BOARD_SIZE);
-
-            return new Move(fromRow, fromCol, toRow, toCol, this.height);
-        }
-
-        public String toString() {
-            return (from + ", " + to);
-        }
-    }
 
     private static int evaluate(Board board) {
         return board.numPieces(Player.RED) - board.numPieces(Player.BLUE);

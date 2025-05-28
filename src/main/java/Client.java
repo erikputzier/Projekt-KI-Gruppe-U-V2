@@ -158,11 +158,11 @@ public class Client {
     private String chooseMove(String fen) {
         try {
             Board board = new Board(fen);                       // parses “<diagram> <turn>”
-            List<BitBoardUtils.MovePair> moves = engine.generateAllLegalMoves(board);
+            List<MovePair> moves = engine.generateAllLegalMoves(board);
 
             if (moves.isEmpty()) return null;                   // no legal moves
 
-            BitBoardUtils.MovePair choice = engine.pickMove(moves, board);
+            MovePair choice = engine.pickMove(moves, board);
             Move m = choice.toMove();
             return m.toAlgebraic();
 

@@ -1,8 +1,8 @@
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+
         /**
          Board bitboard0 = new Board();
          BitBoardUtils utils = new BitBoardUtils();
@@ -45,11 +45,11 @@ public class Main {
         BitBoardUtils utils = new BitBoardUtils();
         board.printBoard();
         int numberOfTurns = 100;
-        while (!(utils.checkplayerWon(board, Player.BLUE) && utils.checkplayerWon(board, Player.RED))) {
+        while (!(BitBoardUtils.checkplayerWon(board, Player.BLUE) && BitBoardUtils.checkplayerWon(board, Player.RED))) {
 
-            List<BitBoardUtils.MovePair> moves = utils.generateAllLegalMoves(board);
-            BitBoardUtils.MovePair chosenMove = utils.pickMove(moves, board);
-            board = utils.makeMove(chosenMove, board);
+            List<MovePair> moves = utils.generateAllLegalMoves(board);
+            MovePair chosenMove = utils.pickMove(moves, board);
+            board = BitBoardUtils.makeMove(chosenMove, board);
             board.printBoard();
 
             numberOfTurns--;
