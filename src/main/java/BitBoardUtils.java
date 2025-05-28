@@ -527,23 +527,23 @@ public final class BitBoardUtils {
             return evaluate(board);
 
         /* ---------- recursive descent ------------------------------------------ */
+        int best;
         if (maximizingPlayer) {
-            int best = Integer.MIN_VALUE;
+            best = Integer.MIN_VALUE;
             for (MovePair m : moves) {
                 Board child = makeMove(m, board.copy());  // safe copy
                 int score = minimax(child, depth - 1, false);
                 best = Math.max(best, score);
             }
-            return best;
         } else {                                       // minimizing player
-            int best = Integer.MAX_VALUE;
+            best = Integer.MAX_VALUE;
             for (MovePair m : moves) {
                 Board child = makeMove(m, board.copy());
                 int score = minimax(child, depth - 1, true);
                 best = Math.min(best, score);
             }
-            return best;
         }
+        return best;
     }
 
 
@@ -575,8 +575,9 @@ public final class BitBoardUtils {
             return evaluate(board);
 
         /* ---------- standard alpha–beta recursion ------------------------------ */
+        int best;
         if (maximizingPlayer) {
-            int best = Integer.MIN_VALUE;
+            best = Integer.MIN_VALUE;
             for (MovePair m : moves) {
                 Board child = makeMove(m, board.copy());           // safe copy
                 int score = minimaxAlphaBeta(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
@@ -584,9 +585,8 @@ public final class BitBoardUtils {
                 alpha = Math.max(alpha, best);
                 if (alpha >= beta) break;                                // cut-off
             }
-            return best;
         } else { // minimizing player
-            int best = Integer.MAX_VALUE;
+            best = Integer.MAX_VALUE;
             for (MovePair m : moves) {
                 Board child = makeMove(m, board.copy());
                 int score = minimaxAlphaBeta(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
@@ -594,8 +594,8 @@ public final class BitBoardUtils {
                 beta = Math.min(beta, best);
                 if (beta <= alpha) break;
             }
-            return best;
         }
+        return best;
     }
 
 }
