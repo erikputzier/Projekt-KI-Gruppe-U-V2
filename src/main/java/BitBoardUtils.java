@@ -8,9 +8,9 @@ public final class BitBoardUtils {
     private static final int MAX_PLIES = 64;   // depth guard
     public static final int BOARD_SIZE = 7;
     private final Map<MovePair, Long> pathMaskMap = new HashMap<>();
-    private long[] leftMasks = new long[BOARD_SIZE];
-    private long[] rightMasks = new long[BOARD_SIZE];
-    private long fullMask;
+    private final long[] leftMasks = new long[BOARD_SIZE];
+    private final long[] rightMasks = new long[BOARD_SIZE];
+    private final long fullMask;
 
     public BitBoardUtils() {
         this.fullMask = (1L << 49) - 1;
@@ -30,13 +30,9 @@ public final class BitBoardUtils {
         }
     }
 
-    public MovePair pickMove(List<MovePair> moves, Board board) {
-        BitBoardUtils utils = new BitBoardUtils();
-        List<MovePair> legalMoves = utils.generateAllLegalMoves(board);
-        boolean maximizingPlayer;
-
-        maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
-
+    public MovePair pickMove(Board board) {
+        List<MovePair> legalMoves = generateAllLegalMoves(board);
+        boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
         MovePair bestMove = null;
         int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
@@ -46,7 +42,7 @@ public final class BitBoardUtils {
         for (MovePair move : legalMoves) {
             Board newBoard = BitBoardUtils.makeMove(move, board.copy());
 
-            int eval = minimaxAlphaBeta(newBoard, 1000);
+            int eval = minimaxAlphaBeta(newBoard, 100);
 
             if (maximizingPlayer && eval > bestValue) {
                 bestValue = eval;
@@ -55,8 +51,6 @@ public final class BitBoardUtils {
                 bestValue = eval;
                 bestMove = move;
             }
-            // stop looping if we ran out of time
-            if (System.currentTimeMillis() - startTime > 500) break;
         }
         System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
         return bestMove;
@@ -105,14 +99,12 @@ public final class BitBoardUtils {
         }
 
 
-        Board returnBoard = board;
-
         //Delete "From" Position
         int n = move.height();
         for (int i = 6; i >= 0; i--) {
             //If there is a bit present at the "from" position the ^= operation will lead to that bit being deleted which means the height of the Stack at that position will be decreased by 1
-            if ((returnBoard.getStack(i) | from) == returnBoard.getStack(i)) {
-                returnBoard.setStack(i, returnBoard.getStack(i) ^ from);
+            if ((board.getStack(i) | from) == board.getStack(i)) {
+                board.setStack(i, board.getStack(i) ^ from);
                 n--;
             }
             if (n == 0) {
@@ -121,21 +113,21 @@ public final class BitBoardUtils {
         }
         //update friendly to include the removal of the "from" position
         if (board.getCurrentPlayer() == Player.BLUE) {
-            returnBoard.setBlue(returnBoard.getBlue() & returnBoard.getStack(0));
+            board.setBlue(board.getBlue() & board.getStack(0));
         } else {
-            returnBoard.setRed(returnBoard.getRed() & returnBoard.getStack(0));
+            board.setRed(board.getRed() & board.getStack(0));
         }
 
 
         //delete beaten enemy Stack
         for (int i = 0; i < 7; i++) {
-            returnBoard.setStack(i, (returnBoard.getStack(i) & enemy ^ to & returnBoard.getStack(i)) | (friendly & returnBoard.getStack(i)));
+            board.setStack(i, (board.getStack(i) & enemy ^ to & board.getStack(i)) | (friendly & board.getStack(i)));
         }
         //update enemy to include the removal of beaten stack
         if (board.getCurrentPlayer() == Player.BLUE) {
-            returnBoard.setRed(enemy & returnBoard.getStack(0));
+            board.setRed(enemy & board.getStack(0));
         } else {
-            returnBoard.setBlue((enemy & returnBoard.getStack(0)));
+            board.setBlue((enemy & board.getStack(0)));
         }
 
 
@@ -143,8 +135,8 @@ public final class BitBoardUtils {
         n = move.height();
         for (int i = 0; i < 7; i++) {
             //If there is no bit present at the "to" position the | operation will lead to that bit being added which means the height of the Stack at that position will be increased by 1
-            if ((returnBoard.getStack(i) | to) != returnBoard.getStack(i)) {
-                returnBoard.setStack(i, returnBoard.getStack(i) | to);
+            if ((board.getStack(i) | to) != board.getStack(i)) {
+                board.setStack(i, board.getStack(i) | to);
                 n--;
             }
             if (n == 0) {
@@ -154,27 +146,27 @@ public final class BitBoardUtils {
 
         //update friendly to include the increased Stack
         if (board.getCurrentPlayer() == Player.BLUE) {
-            returnBoard.setBlue(returnBoard.getStack(0) ^ returnBoard.getRed());
+            board.setBlue(board.getStack(0) ^ board.getRed());
         } else {
-            returnBoard.setRed(returnBoard.getStack(0) ^ returnBoard.getBlue());
+            board.setRed(board.getStack(0) ^ board.getBlue());
         }
 
 
         // update guard mask
-        if ((returnBoard.getGuards() | from) == returnBoard.getGuards()) {
-            returnBoard.setGuards(returnBoard.getGuards() ^ from ^ to | to);
-        } else if ((returnBoard.getGuards() | to) == returnBoard.getGuards()) {
-            returnBoard.setGuards(returnBoard.getGuards() ^ to);
+        if ((board.getGuards() | from) == board.getGuards()) {
+            board.setGuards(board.getGuards() ^ from ^ to | to);
+        } else if ((board.getGuards() | to) == board.getGuards()) {
+            board.setGuards(board.getGuards() ^ to);
         }
 
         //update currentPlayer
         if (board.getCurrentPlayer() == Player.BLUE) {
-            returnBoard.setCurrentPlayer(Player.RED);
+            board.setCurrentPlayer(Player.RED);
         } else if (board.getCurrentPlayer() == Player.RED) {
-            returnBoard.setCurrentPlayer(Player.BLUE);
+            board.setCurrentPlayer(Player.BLUE);
         }
 
-        return returnBoard;
+        return board;
     }
 
     /**
@@ -390,9 +382,10 @@ public final class BitBoardUtils {
 
 
     public static int minimaxAlphaBeta(Board root, long timeLimitMs) {              // convenience
+        boolean rootIsMax = (root.getCurrentPlayer() == Player.RED);
         long start = System.currentTimeMillis();
         return minimaxAlphaBeta(root,                     /* board    */
-                true,                                     /* max ply  */
+                rootIsMax,                                     /* max ply  */
                 Integer.MIN_VALUE, Integer.MAX_VALUE,     /* α, β     */
                 start, timeLimitMs,                       /* timing   */
                 0);                                       /* ply = 0  */

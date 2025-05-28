@@ -162,7 +162,7 @@ public class Client {
 
             if (moves.isEmpty()) return null;                   // no legal moves
 
-            MovePair choice = engine.pickMove(moves, board);
+            MovePair choice = engine.pickMove(board);
             Move m = choice.toMove();
             return m.toAlgebraic();
 

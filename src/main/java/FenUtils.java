@@ -1,16 +1,7 @@
 /**
- * Helper class that converts our custom FEN notation for **Guard&Towers**
+ * Helper class that converts our custom FEN notation for Guard&Towers
  * positions into the bit‑board representation used by the engine and offers
- * a couple of convenience functions (move generation, ASCII diagram).
- * <p>
- * <strong>Mini‑FEN grammar</strong> (rank7→1, filea→g):
- * <ul>
- *   <li><code>rH</code> / <code>bH</code>– red / blue tower of height<em>H</em> (one digit 1‑7)</li>
- *   <li><code>RG</code> / <code>BG</code>– red / blue guard (height1)</li>
- *   <li>empty squares– a digit1‑7 (multi‑digit allowed for convenience)</li>
- * </ul>
- * Rows are separated by ‘/’; a trailing space and <code>r</code>or<code>b</code>
- * indicate the side to move.
+ * a couple of convenience functions
  */
 public final class FenUtils {
     /**

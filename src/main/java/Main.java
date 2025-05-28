@@ -48,7 +48,7 @@ public class Main {
         while (!(BitBoardUtils.checkplayerWon(board, Player.BLUE) && BitBoardUtils.checkplayerWon(board, Player.RED))) {
 
             List<MovePair> moves = utils.generateAllLegalMoves(board);
-            MovePair chosenMove = utils.pickMove(moves, board);
+            MovePair chosenMove = utils.pickMove(board);
             board = BitBoardUtils.makeMove(chosenMove, board);
             board.printBoard();
 
