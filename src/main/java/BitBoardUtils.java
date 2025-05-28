@@ -339,9 +339,7 @@ public final class BitBoardUtils {
     }
 
     public static void printBitboard(long bitboard) {
-        final int BOARD_SIZE = 7;
         System.out.println("Bitboard-Darstellung:");
-
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 int index = y * BOARD_SIZE + x;
@@ -351,12 +349,6 @@ public final class BitBoardUtils {
             System.out.println();
         }
     }
-
-
-    /**
-     * Hilfsklasse um Züge besser speichern zu können
-     */
-
 
     private static int evaluate(Board board) {
         return board.numPieces(Player.RED) - board.numPieces(Player.BLUE);
@@ -399,7 +391,7 @@ public final class BitBoardUtils {
 
     public static int minimaxAlphaBeta(Board root, long timeLimitMs) {              // convenience
         long start = System.currentTimeMillis();
-        return minimaxAlphaBeta(root,                                     /* board    */
+        return minimaxAlphaBeta(root,                     /* board    */
                 true,                                     /* max ply  */
                 Integer.MIN_VALUE, Integer.MAX_VALUE,     /* α, β     */
                 start, timeLimitMs,                       /* timing   */
@@ -407,8 +399,8 @@ public final class BitBoardUtils {
     }
 
     // -----------------------------------------------------------------------------
-//  Core recursive search
-// -----------------------------------------------------------------------------
+    //  Core recursive search
+    // -----------------------------------------------------------------------------
     private static int minimaxAlphaBeta(Board board, boolean maximizingPlayer, int alpha, int beta, long startTime, long timeLimitMs, int ply) {
 
         /* ---------- hard stops: out of time OR too deep ------------------------ */

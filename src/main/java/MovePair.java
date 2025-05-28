@@ -1,3 +1,6 @@
+/**
+ * Hilfsklasse um Züge besser speichern zu können
+ */
 public record MovePair(int from, int to, int height) {
     /**
      * Konstruktor der Klasse MovePair
