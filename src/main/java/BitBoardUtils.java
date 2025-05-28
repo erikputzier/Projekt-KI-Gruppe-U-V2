@@ -90,9 +90,9 @@ public final class BitBoardUtils {
     }
 
     public static Board makeMove(MovePair move, Board board) {
-        long to = (1L << move.getTo());
+        long to = (1L << move.to());
 
-        long from = (1L << move.getFrom());
+        long from = (1L << move.from());
         long friendly;
         long enemy;
 
@@ -108,7 +108,7 @@ public final class BitBoardUtils {
         Board returnBoard = board;
 
         //Delete "From" Position
-        int n = move.getHeight();
+        int n = move.height();
         for (int i = 6; i >= 0; i--) {
             //If there is a bit present at the "from" position the ^= operation will lead to that bit being deleted which means the height of the Stack at that position will be decreased by 1
             if ((returnBoard.getStack(i) | from) == returnBoard.getStack(i)) {
@@ -140,7 +140,7 @@ public final class BitBoardUtils {
 
 
         //increase Stacks which player who moved owns
-        n = move.getHeight();
+        n = move.height();
         for (int i = 0; i < 7; i++) {
             //If there is no bit present at the "to" position the | operation will lead to that bit being added which means the height of the Stack at that position will be increased by 1
             if ((returnBoard.getStack(i) | to) != returnBoard.getStack(i)) {
@@ -352,33 +352,14 @@ public final class BitBoardUtils {
     /**
      * Hilfsklasse um Züge besser speichern zu können
      */
-    static class MovePair {
-        private final int from;
-        private final int to;
-        private final int height;
-
+    record MovePair(int from, int to, int height) {
         /**
          * Konstruktor der Klasse MovePair
          *
          * @param from int-Repräsentation des Start-Feldes eines Zuges
          * @param to   int-Repräsentation des End-Feldes eines Zuges
          */
-        public MovePair(int from, int to, int height) {
-            this.from = from;
-            this.to = to;
-            this.height = height;
-        }
-
-        public int getFrom() {
-            return from;
-        }
-
-        public int getTo() {
-            return to;
-        }
-
-        public int getHeight() {
-            return height;
+        MovePair {
         }
 
         /**
