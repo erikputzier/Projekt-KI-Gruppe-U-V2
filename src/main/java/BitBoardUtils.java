@@ -230,25 +230,29 @@ public final class BitBoardUtils {
 
         //check Direction and shift by required amount
         fromBits &= ~(board.getGuards() & friendly);
-        if (dir.equals("E")) {
-            shift = height;
-            fromBits &= ~rightMasks[height - 1];
-            shifted = (fromBits >>> shift) & fullMask;
-            guardMoves = ((guardMoves & ~rightMasks[height - 1]) >>> shift) & ~(board.getStack(0) & friendly) & fullMask;
-        } else if (dir.equals("W")) {
-            shift = height;
-            fromBits &= ~leftMasks[height - 1];
-            guardMoves = ((guardMoves & ~leftMasks[height - 1]) << shift) & ~(board.getStack(0) & friendly) & fullMask;
-            shifted = (fromBits << shift) & fullMask;
-
-        } else if (dir.equals("N")) {
-            shift = 7 * height;
-            shifted = (fromBits << shift) & fullMask;
-            guardMoves = (guardMoves << shift) & ~(board.getStack(0) & friendly) & fullMask;
-        } else { // South
-            shift = 7 * height;
-            shifted = (fromBits >>> shift) & fullMask;
-            guardMoves = (guardMoves >>> shift) & ~(board.getStack(0) & friendly) & fullMask;
+        switch (dir) {
+            case "E" -> {
+                shift = height;
+                fromBits &= ~rightMasks[height - 1];
+                shifted = (fromBits >>> shift) & fullMask;
+                guardMoves = ((guardMoves & ~rightMasks[height - 1]) >>> shift) & ~(board.getStack(0) & friendly) & fullMask;
+            }
+            case "W" -> {
+                shift = height;
+                fromBits &= ~leftMasks[height - 1];
+                guardMoves = ((guardMoves & ~leftMasks[height - 1]) << shift) & ~(board.getStack(0) & friendly) & fullMask;
+                shifted = (fromBits << shift) & fullMask;
+            }
+            case "N" -> {
+                shift = 7 * height;
+                shifted = (fromBits << shift) & fullMask;
+                guardMoves = (guardMoves << shift) & ~(board.getStack(0) & friendly) & fullMask;
+            }
+            default -> {
+                shift = 7 * height;
+                shifted = (fromBits >>> shift) & fullMask;
+                guardMoves = (guardMoves >>> shift) & ~(board.getStack(0) & friendly) & fullMask;
+            }
         }
         //shifted ohne züge bei denen der eigene Guard das Ziel ist
         shifted = (shifted & ~(board.getGuards() & friendly));
