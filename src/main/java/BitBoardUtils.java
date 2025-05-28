@@ -35,11 +35,7 @@ public final class BitBoardUtils {
         List<MovePair> legalMoves = utils.generateAllLegalMoves(board);
         boolean maximizingPlayer;
 
-        if (board.getCurrentPlayer() == Player.BLUE) {
-            maximizingPlayer = false;
-        } else {
-            maximizingPlayer = true;
-        }
+        maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
 
         MovePair bestMove = null;
         int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -89,10 +85,7 @@ public final class BitBoardUtils {
             throw new RuntimeException("Wrong player input in checkplayerWon");
         }
 
-        if ((board.getGuards() & playerMask) == enemyCastle || (board.getGuards() & enemyMask) == 0) {
-            return true;
-        }
-        return false;
+        return (board.getGuards() & playerMask) == enemyCastle || (board.getGuards() & enemyMask) == 0;
     }
 
     public static Board makeMove(MovePair move, Board board) {
@@ -363,7 +356,7 @@ public final class BitBoardUtils {
         while (shifted != 0) {
             int to = Long.numberOfTrailingZeros(shifted);
             int from = 0;
-            if (dir == "S" || dir == "E") {
+            if (dir.equals("S") || dir.equals("E")) {
                 from = to + shift;
             } else {
                 from = to - shift;
@@ -506,13 +499,12 @@ public final class BitBoardUtils {
             int fromRow = 6 - (this.from / BOARD_SIZE);
             int toCol = 6 - (this.to % BOARD_SIZE);
             int toRow = 6 - (this.to / BOARD_SIZE);
-            int moveHeight = this.height;
 
-            return new Move(fromRow, fromCol, toRow, toCol, moveHeight);
+            return new Move(fromRow, fromCol, toRow, toCol, this.height);
         }
 
         public String toString() {
-            return ("" + from + ", " + to);
+            return (from + ", " + to);
         }
     }
 
@@ -527,7 +519,7 @@ public final class BitBoardUtils {
 
         /* ---------- game end check (the side that just moved) ------------------ */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
-        if (UTILS.checkplayerWon(board, prev)) return evaluate(board);
+        if (checkplayerWon(board, prev)) return evaluate(board);
 
         /* ---------- generate legal moves --------------------------------------- */
         List<MovePair> moves = UTILS.generateAllLegalMoves(board);
@@ -538,7 +530,7 @@ public final class BitBoardUtils {
         if (maximizingPlayer) {
             int best = Integer.MIN_VALUE;
             for (MovePair m : moves) {
-                Board child = UTILS.makeMove(m, board.copy());  // safe copy
+                Board child = makeMove(m, board.copy());  // safe copy
                 int score = minimax(child, depth - 1, false);
                 best = Math.max(best, score);
             }
@@ -546,7 +538,7 @@ public final class BitBoardUtils {
         } else {                                       // minimizing player
             int best = Integer.MAX_VALUE;
             for (MovePair m : moves) {
-                Board child = UTILS.makeMove(m, board.copy());
+                Board child = makeMove(m, board.copy());
                 int score = minimax(child, depth - 1, true);
                 best = Math.min(best, score);
             }
@@ -574,7 +566,7 @@ public final class BitBoardUtils {
 
         /* ---------- game-ending positions -------------------------------------- */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
-        if (UTILS.checkplayerWon(board, prev))          // last mover just won
+        if (checkplayerWon(board, prev))          // last mover just won
             return evaluate(board);
 
         /* ---------- enumerate legal moves -------------------------------------- */
@@ -586,7 +578,7 @@ public final class BitBoardUtils {
         if (maximizingPlayer) {
             int best = Integer.MIN_VALUE;
             for (MovePair m : moves) {
-                Board child = UTILS.makeMove(m, board.copy());           // safe copy
+                Board child = makeMove(m, board.copy());           // safe copy
                 int score = minimaxAlphaBeta(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
                 best = Math.max(best, score);
                 alpha = Math.max(alpha, best);
@@ -596,7 +588,7 @@ public final class BitBoardUtils {
         } else { // minimizing player
             int best = Integer.MAX_VALUE;
             for (MovePair m : moves) {
-                Board child = UTILS.makeMove(m, board.copy());
+                Board child = makeMove(m, board.copy());
                 int score = minimaxAlphaBeta(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
                 best = Math.min(best, score);
                 beta = Math.min(beta, best);
