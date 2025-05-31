@@ -6,13 +6,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Simple, self-contained network client for the instructor’s Python game-server.
- *
- * <p>It relies exclusively on already-existing engine classes
- * (Board, BitBoardUtils, Move, …) – no changes to the server code required.</p>
+ * It relies exclusively on already-existing engine classes
+ * (Board, BitBoardUtils, Move, …) – no changes to the server code required.
  */
 public class Client {
 
@@ -77,7 +75,7 @@ public class Client {
     }
 
     /**
-     * Sends a payload (already a <em>single JSON value</em>) and waits for the server’s JSON reply.
+     * Sends a payload (already a single JSON value) and waits for the server’s JSON reply.
      */
     private String sendAndReceive(String jsonValue) throws IOException {
         // encode and flush
@@ -155,14 +153,8 @@ public class Client {
      */
     private String chooseMove(String fen) {
         try {
-            Board board = new Board(fen);                       // parses “<diagram> <turn>”
-            List<MovePair> moves = BitBoardUtils.generateAllLegalMoves(board);
-
-            if (moves.isEmpty()) return null;                   // no legal moves
-
-            MovePair choice = BitBoardUtils.pickMove(board);
-            Move m = choice.toMove();
-            return m.toAlgebraic();
+            MovePair choice = BitBoardUtils.pickMove(new Board(fen));
+            return choice.toMove().toAlgebraic();
 
         } catch (Exception e) {                                 // any parsing / engine failure → no move
             e.printStackTrace();
