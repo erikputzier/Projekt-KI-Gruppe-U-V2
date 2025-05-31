@@ -4,33 +4,34 @@ import java.util.List;
 import java.util.Map;
 
 public final class BitBoardUtils {
-    private static final BitBoardUtils UTILS = new BitBoardUtils();
     private static final int MAX_PLIES = 64;   // depth guard
     public static final int BOARD_SIZE = 7;
-    private final Map<MovePair, Long> pathMaskMap = new HashMap<>();
-    private final long[] leftMasks = new long[BOARD_SIZE];
-    private final long[] rightMasks = new long[BOARD_SIZE];
-    private final long fullMask;
+    private static final Map<MovePair, Long> PATH_MASK_MAP = new HashMap<>();
+    private static final long[] LEFT_MASKS = new long[BOARD_SIZE];
+    private static final long[] RIGHT_MASKS = new long[BOARD_SIZE];
+    private static final long FULL_MASK;
 
-    public BitBoardUtils() {
-        this.fullMask = (1L << 49) - 1;
-        precomputePathMasks();
-        long leftMask1 = 1L << 6;
-        long rightMask1 = 1L;
+    static {
+        FULL_MASK = (1L << 49) - 1;
+
+        precomputePathMasks();                       // now a static helper
+
+        long left = 1L << 6;
+        long right = 1L;
         for (int i = 0; i < 6; i++) {
-            leftMask1 = leftMask1 << BOARD_SIZE | leftMask1;
-            rightMask1 = rightMask1 << BOARD_SIZE | rightMask1;
+            left = (left << BOARD_SIZE) | left;
+            right = (right << BOARD_SIZE) | right;
         }
-        this.leftMasks[0] = leftMask1;
-        this.rightMasks[0] = rightMask1;
+        LEFT_MASKS[0] = left;
+        RIGHT_MASKS[0] = right;
 
-        for (int i = 1; i <= 6; i++) {
-            this.leftMasks[i] = this.leftMasks[i - 1] | this.leftMasks[i - 1] >>> 1;
-            this.rightMasks[i] = this.rightMasks[i - 1] | this.rightMasks[i - 1] >>> 1;
+        for (int i = 1; i < BOARD_SIZE; i++) {
+            LEFT_MASKS[i] = LEFT_MASKS[i - 1] | (LEFT_MASKS[i - 1] >>> 1);
+            RIGHT_MASKS[i] = RIGHT_MASKS[i - 1] | (RIGHT_MASKS[i - 1] >>> 1);
         }
     }
 
-    public MovePair pickMove(Board board) {
+    public static MovePair pickMove(Board board) {
         List<MovePair> legalMoves = generateAllLegalMoves(board);
         boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
         MovePair bestMove = null;
@@ -174,7 +175,7 @@ public final class BitBoardUtils {
      *
      * @return List of MovePairs, giving all possible moves in all direction for the current state of the Game.
      */
-    public List<MovePair> generateAllLegalMoves(Board board) {
+    public static List<MovePair> generateAllLegalMoves(Board board) {
         long empty = ~board.getStack(0);
         List<MovePair> moves = new ArrayList<>();
         long playerMask = 0L;
@@ -204,7 +205,7 @@ public final class BitBoardUtils {
      * @param height   int specifying the Minimum height of the Stacks for which the Moves should be calculated. Also determines the Number of steps one Move has.
      * @return List of MovePairs, giving all possible moves which do not violate Boundary's for the specified Direction.
      */
-    private List<MovePair> generateMovesInDirection(long fromBits, long empty, String dir, int height, Board board) {
+    private static List<MovePair> generateMovesInDirection(long fromBits, long empty, String dir, int height, Board board) {
         List<MovePair> moves = new ArrayList<>();
         long shifted;
         int shift;
@@ -225,25 +226,25 @@ public final class BitBoardUtils {
         switch (dir) {
             case "E" -> {
                 shift = height;
-                fromBits &= ~rightMasks[height - 1];
-                shifted = (fromBits >>> shift) & fullMask;
-                guardMoves = ((guardMoves & ~rightMasks[height - 1]) >>> shift) & ~(board.getStack(0) & friendly) & fullMask;
+                fromBits &= ~RIGHT_MASKS[height - 1];
+                shifted = (fromBits >>> shift) & FULL_MASK;
+                guardMoves = ((guardMoves & ~RIGHT_MASKS[height - 1]) >>> shift) & ~(board.getStack(0) & friendly) & FULL_MASK;
             }
             case "W" -> {
                 shift = height;
-                fromBits &= ~leftMasks[height - 1];
-                guardMoves = ((guardMoves & ~leftMasks[height - 1]) << shift) & ~(board.getStack(0) & friendly) & fullMask;
-                shifted = (fromBits << shift) & fullMask;
+                fromBits &= ~LEFT_MASKS[height - 1];
+                guardMoves = ((guardMoves & ~LEFT_MASKS[height - 1]) << shift) & ~(board.getStack(0) & friendly) & FULL_MASK;
+                shifted = (fromBits << shift) & FULL_MASK;
             }
             case "N" -> {
                 shift = BOARD_SIZE * height;
-                shifted = (fromBits << shift) & fullMask;
-                guardMoves = (guardMoves << shift) & ~(board.getStack(0) & friendly) & fullMask;
+                shifted = (fromBits << shift) & FULL_MASK;
+                guardMoves = (guardMoves << shift) & ~(board.getStack(0) & friendly) & FULL_MASK;
             }
             default -> {
                 shift = BOARD_SIZE * height;
-                shifted = (fromBits >>> shift) & fullMask;
-                guardMoves = (guardMoves >>> shift) & ~(board.getStack(0) & friendly) & fullMask;
+                shifted = (fromBits >>> shift) & FULL_MASK;
+                guardMoves = (guardMoves >>> shift) & ~(board.getStack(0) & friendly) & FULL_MASK;
             }
         }
         //shifted ohne züge bei denen der eigene Guard das Ziel ist
@@ -277,7 +278,7 @@ public final class BitBoardUtils {
 
     }
 
-    private void precomputePathMasks() {
+    private static void precomputePathMasks() {
         for (int from = 0; from < 49; from++) {
             int x1 = from % BOARD_SIZE;
             int y1 = from / BOARD_SIZE;
@@ -316,18 +317,18 @@ public final class BitBoardUtils {
 
                     }
 
-                    pathMaskMap.put(new MovePair(from, to, height), mask);
+                    PATH_MASK_MAP.put(new MovePair(from, to, height), mask);
                 }
             }
         }
     }
 
 
-    private boolean moveDoesntJump(MovePair move, Board board) {
-        if (pathMaskMap.get(move) == null) {
+    private static boolean moveDoesntJump(MovePair move, Board board) {
+        if (PATH_MASK_MAP.get(move) == null) {
             return false;
         }
-        return (board.getStack(0) & pathMaskMap.get(move)) == 0;
+        return (board.getStack(0) & PATH_MASK_MAP.get(move)) == 0;
     }
 
     public static void printBitboard(long bitboard) {
@@ -356,7 +357,7 @@ public final class BitBoardUtils {
         if (checkplayerWon(board, prev)) return evaluate(board);
 
         /* ---------- generate legal moves --------------------------------------- */
-        List<MovePair> moves = UTILS.generateAllLegalMoves(board);
+        List<MovePair> moves = generateAllLegalMoves(board);
         if (moves.isEmpty())                           // stalemate or no moves
             return evaluate(board);
 
@@ -405,7 +406,7 @@ public final class BitBoardUtils {
             return evaluate(board);
 
         /* ---------- enumerate legal moves -------------------------------------- */
-        List<MovePair> moves = UTILS.generateAllLegalMoves(board);
+        List<MovePair> moves = generateAllLegalMoves(board);
         if (moves.isEmpty())                            // stalemate or no moves
             return evaluate(board);
 

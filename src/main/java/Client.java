@@ -29,11 +29,9 @@ public class Client {
     private OutputStream out;
     private final Gson gson = new Gson();
 
-    /* ————————————————————————————————————game/engine fields———————————————————————————————————— */
+    /* ————————————————————————————————————game field———————————————————————————————————— */
 
     private char myTurnToken;      // 'r' or 'b'
-    private final BitBoardUtils engine = new BitBoardUtils();
-
     /* =================================================================================================================
                                               │ public bootstrap │
        ===============================================================================================================*/
@@ -158,11 +156,11 @@ public class Client {
     private String chooseMove(String fen) {
         try {
             Board board = new Board(fen);                       // parses “<diagram> <turn>”
-            List<MovePair> moves = engine.generateAllLegalMoves(board);
+            List<MovePair> moves = BitBoardUtils.generateAllLegalMoves(board);
 
             if (moves.isEmpty()) return null;                   // no legal moves
 
-            MovePair choice = engine.pickMove(board);
+            MovePair choice = BitBoardUtils.pickMove(board);
             Move m = choice.toMove();
             return m.toAlgebraic();
 

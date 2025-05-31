@@ -42,13 +42,12 @@ public class Main {
 
          */
         Board board = new Board();
-        BitBoardUtils utils = new BitBoardUtils();
         board.printBoard();
         int numberOfTurns = 100;
         while (!(BitBoardUtils.checkplayerWon(board, Player.BLUE) && BitBoardUtils.checkplayerWon(board, Player.RED))) {
 
-            List<MovePair> moves = utils.generateAllLegalMoves(board);
-            MovePair chosenMove = utils.pickMove(board);
+            List<MovePair> moves = BitBoardUtils.generateAllLegalMoves(board);
+            MovePair chosenMove = BitBoardUtils.pickMove(board);
             board = BitBoardUtils.makeMove(chosenMove, board);
             board.printBoard();
 
