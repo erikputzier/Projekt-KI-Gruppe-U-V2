@@ -10,22 +10,6 @@ public class Board {
     private long[] stacks = {0L, 0L, 0L, 0L, 0L, 0L, 0L};
     private Player currentPlayer;
 
-    public void setGuards(long guards) {
-        this.guards = guards;
-    }
-
-    public void setBlue(long blue) {
-        this.blue = blue;
-    }
-
-    public void setRed(long red) {
-        this.red = red;
-    }
-
-    public void setStack(int i, long stack) {
-        this.stacks[i] = stack;
-    }
-
     /**
      * Constructor to create a specific Board according to Parameters
      */
@@ -35,14 +19,6 @@ public class Board {
         this.red = red;
         this.stacks = stacks;
         this.currentPlayer = player;
-    }
-
-    public Player getCurrentPlayer() {
-        return currentPlayer;
-    }
-
-    public void setCurrentPlayer(Player currentPlayer) {
-        this.currentPlayer = currentPlayer;
     }
 
     /**
@@ -135,6 +111,30 @@ public class Board {
         this.stacks[3] = stacks[3] | stacks[4] | stacks[5] | stacks[6];
         this.stacks[4] = stacks[4] | stacks[5] | stacks[6];
         this.stacks[5] = stacks[5] | stacks[6];
+    }
+
+    public void setGuards(long guards) {
+        this.guards = guards;
+    }
+
+    public void setBlue(long blue) {
+        this.blue = blue;
+    }
+
+    public void setRed(long red) {
+        this.red = red;
+    }
+
+    public void setStack(int i, long stack) {
+        this.stacks[i] = stack;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
     }
 
     public long getGuards() {

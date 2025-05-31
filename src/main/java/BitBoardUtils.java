@@ -18,8 +18,8 @@ public final class BitBoardUtils {
         long leftMask1 = 1L << 6;
         long rightMask1 = 1L;
         for (int i = 0; i < 6; i++) {
-            leftMask1 = leftMask1 << 7 | leftMask1;
-            rightMask1 = rightMask1 << 7 | rightMask1;
+            leftMask1 = leftMask1 << BOARD_SIZE | leftMask1;
+            rightMask1 = rightMask1 << BOARD_SIZE | rightMask1;
         }
         this.leftMasks[0] = leftMask1;
         this.rightMasks[0] = rightMask1;
@@ -120,7 +120,7 @@ public final class BitBoardUtils {
 
 
         //delete beaten enemy Stack
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
             board.setStack(i, (board.getStack(i) & enemy ^ to & board.getStack(i)) | (friendly & board.getStack(i)));
         }
         //update enemy to include the removal of beaten stack
@@ -133,7 +133,7 @@ public final class BitBoardUtils {
 
         //increase Stacks which player who moved owns
         n = move.height();
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
             //If there is no bit present at the "to" position the | operation will lead to that bit being added which means the height of the Stack at that position will be increased by 1
             if ((board.getStack(i) | to) != board.getStack(i)) {
                 board.setStack(i, board.getStack(i) | to);
@@ -184,7 +184,7 @@ public final class BitBoardUtils {
             playerMask = board.getBlue();
         }
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
             moves.addAll(generateMovesInDirection(board.getStack(i) & playerMask, empty, "N", i + 1, board)); // North
             moves.addAll(generateMovesInDirection(board.getStack(i) & playerMask, empty, "S", i + 1, board)); // South
             moves.addAll(generateMovesInDirection(board.getStack(i) & playerMask, empty, "E", i + 1, board)); // East
@@ -236,12 +236,12 @@ public final class BitBoardUtils {
                 shifted = (fromBits << shift) & fullMask;
             }
             case "N" -> {
-                shift = 7 * height;
+                shift = BOARD_SIZE * height;
                 shifted = (fromBits << shift) & fullMask;
                 guardMoves = (guardMoves << shift) & ~(board.getStack(0) & friendly) & fullMask;
             }
             default -> {
-                shift = 7 * height;
+                shift = BOARD_SIZE * height;
                 shifted = (fromBits >>> shift) & fullMask;
                 guardMoves = (guardMoves >>> shift) & ~(board.getStack(0) & friendly) & fullMask;
             }
@@ -249,7 +249,7 @@ public final class BitBoardUtils {
         //shifted ohne züge bei denen der eigene Guard das Ziel ist
         shifted = (shifted & ~(board.getGuards() & friendly));
         //shifted ohne züge bei denen höhere Türme geschlagen werden
-        if (height < 7) {
+        if (height < BOARD_SIZE) {
             shifted &= ~(board.getStack(height) & enemy);
         }
         //shifted mit legalen zügen für den Guard
