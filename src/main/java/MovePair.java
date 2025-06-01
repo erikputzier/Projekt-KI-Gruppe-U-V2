@@ -1,16 +1,11 @@
 /**
  * Hilfsklasse um Züge besser speichern zu können
+ *
+ * @param from   int-Repräsentation des Start-Feldes eines Zuges
+ * @param to     int-Repräsentation des End-Feldes eines Zuges
+ * @param height int-Repräsentation der Höhe eines Zuges
  */
 public record MovePair(int from, int to, int height) {
-    /**
-     * Konstruktor der Klasse MovePair
-     *
-     * @param from int-Repräsentation des Start-Feldes eines Zuges
-     * @param to   int-Repräsentation des End-Feldes eines Zuges
-     */
-    public MovePair {
-    }
-
     /**
      * Methode um MovePairs miteinander zu vergleichen
      *
