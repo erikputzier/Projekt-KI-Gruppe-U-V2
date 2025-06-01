@@ -1,4 +1,5 @@
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -32,8 +33,7 @@ public class MoveGeneratorTest {
     @Test
     public void moveGeneratorStartTest() {
         Board board = new Board("r1r11RG1r1r1/2r11r12/3r13/7/3b13/2b11b12/b1b11BG1b1b1 r");
-        BitBoardUtils utils = new BitBoardUtils();
-        List<MovePair> movePairs = utils.generateAllLegalMoves(board);
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
         List<Move> generatedMoves = new ArrayList<>();
         for (MovePair pair : movePairs) {
             generatedMoves.add(pair.toMove());
@@ -46,8 +46,7 @@ public class MoveGeneratorTest {
     @Test
     public void moveGeneratorMidgameTest() {
         Board board = new Board("3RG3/1r25/7/3r3b42/1b1BG4/4b12/7 r");
-        BitBoardUtils utils = new BitBoardUtils();
-        List<MovePair> movePairs = utils.generateAllLegalMoves(board);
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
         List<Move> generatedMoves = new ArrayList<>();
         for (MovePair pair : movePairs) {
             generatedMoves.add(pair.toMove());
@@ -60,8 +59,7 @@ public class MoveGeneratorTest {
     @Test
     public void moveGeneratorJumpingTest() {
         Board board = new Board("7/3RG3/7/3r23/3b13/3BG3/7 r");
-        BitBoardUtils utils = new BitBoardUtils();
-        List<MovePair> movePairs = utils.generateAllLegalMoves(board);
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
         List<Move> generatedMoves = new ArrayList<>();
         for (MovePair pair : movePairs) {
             generatedMoves.add(pair.toMove());
@@ -74,8 +72,7 @@ public class MoveGeneratorTest {
     @Test
     public void moveGeneratorLateStartTest() {
         Board board = new Board("3RG3/2r11r12/1r21r11r21/7/3b33/2b11b12/1b21BG3 b");
-        BitBoardUtils utils = new BitBoardUtils();
-        List<MovePair> movePairs = utils.generateAllLegalMoves(board);
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
         List<Move> generatedMoves = new ArrayList<>();
         for (MovePair pair : movePairs) {
             generatedMoves.add(pair.toMove());
@@ -88,8 +85,7 @@ public class MoveGeneratorTest {
     @Test
     public void moveGeneratorEndgameTest() {
         Board board = new Board("3RG3/7/7/7/4b11b1/4r4r11/3BG1b11 b");
-        BitBoardUtils utils = new BitBoardUtils();
-        List<MovePair> movePairs = utils.generateAllLegalMoves(board);
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
         List<Move> generatedMoves = new ArrayList<>();
         for (MovePair pair : movePairs) {
             generatedMoves.add(pair.toMove());

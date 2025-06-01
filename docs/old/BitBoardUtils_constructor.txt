@@ -1,0 +1,17 @@
+public BitBoardUtils() {
+    this.fullMask = (1L << 49) - 1;
+    precomputePathMasks();
+    long leftMask1 = 1L << 6;
+    long rightMask1 = 1L;
+    for (int i = 0; i < 6; i++) {
+        leftMask1 = leftMask1 << BOARD_SIZE | leftMask1;
+        rightMask1 = rightMask1 << BOARD_SIZE | rightMask1;
+    }
+    this.leftMasks[0] = leftMask1;
+    this.rightMasks[0] = rightMask1;
+
+    for (int i = 1; i <= 6; i++) {
+        this.leftMasks[i] = this.leftMasks[i - 1] | this.leftMasks[i - 1] >>> 1;
+        this.rightMasks[i] = this.rightMasks[i - 1] | this.rightMasks[i - 1] >>> 1;
+    }
+}

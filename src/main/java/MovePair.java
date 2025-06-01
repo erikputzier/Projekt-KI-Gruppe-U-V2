@@ -1,17 +1,9 @@
 /**
- * Hilfsklasse um Züge besser speichern zu können
- *
- * @param from   int-Repräsentation des Start-Feldes eines Zuges
- * @param to     int-Repräsentation des End-Feldes eines Zuges
- * @param height int-Repräsentation der Höhe eines Zuges
+ * A record that represents a move pair consisting of two positions (from, to) and a height value.
+ * This is used to represent a move on a bitboard and to compare moves for equality.
  */
 public record MovePair(int from, int to, int height) {
-    /**
-     * Methode um MovePairs miteinander zu vergleichen
-     *
-     * @param o anderes MovePair, mit dem dieses vergleichen werden soll
-     * @return Boolscher Wert der angibt ob die beiden MovePairs die Instanzvariablen der beiden MovePairs gleich sind
-     */
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof MovePair(int from1, int v, int height1))) return false;

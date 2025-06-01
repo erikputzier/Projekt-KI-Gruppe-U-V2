@@ -10,7 +10,7 @@ public final class FenUtils {
     public static void printBoard(String fen) {
         if (fen == null || fen.isBlank()) throw new IllegalArgumentException("FEN must not be null/empty");
 
-        final int SIZE = BitBoardUtils.BOARD_SIZE;          // 7×7 board
+        final int SIZE = Board.BOARD_SIZE;          // 7×7 board
         String[][] grid = new String[SIZE][SIZE];
 
         // decode board part (everything before the first whitespace)

@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Board {
-
+    public static final int BOARD_SIZE = 7;
     private long guards;
     private long blue;
     private long red;
@@ -242,6 +242,115 @@ public class Board {
             }
         }
         return numPiece;
+    }
+
+    /**
+     * Method to check if the Player who has just made a move has won the game.
+     *
+     * @param board  Board which is checked for a winner.
+     * @param player Player who has just made a move.
+     * @return boolean true if the player has won the game, false if not.
+     */
+    public static boolean checkplayerWon(Board board, Player player) {
+        long playerMask;
+        long enemyCastle;
+        long enemyMask;
+        if (player == Player.BLUE) {
+            playerMask = board.getBlue();
+            enemyMask = board.getRed();
+            enemyCastle = 1L << 45;
+        } else if (player == Player.RED) {
+            playerMask = board.getRed();
+            enemyMask = board.getBlue();
+            enemyCastle = 1L << 3;
+        } else {
+            throw new RuntimeException("Wrong player input in checkplayerWon");
+        }
+
+        return (board.getGuards() & playerMask) == enemyCastle || (board.getGuards() & enemyMask) == 0;
+    }
+
+    public static Board makeMove(MovePair move, Board board) {
+        long to = (1L << move.to());
+
+        long from = (1L << move.from());
+        long friendly;
+        long enemy;
+
+        if (board.getCurrentPlayer() == Player.BLUE) {
+            friendly = board.getBlue();
+            enemy = board.getRed();
+        } else {
+            friendly = board.getRed();
+            enemy = board.getBlue();
+        }
+
+        //Delete "From" Position
+        int n = move.height();
+        for (int i = 6; i >= 0; i--) {
+            //If there is a bit present at the "from" position the ^= operation will lead to that bit being deleted which means the height of the Stack at that position will be decreased by 1
+            if ((board.getStack(i) | from) == board.getStack(i)) {
+                board.setStack(i, board.getStack(i) ^ from);
+                n--;
+            }
+            if (n == 0) {
+                break;
+            }
+        }
+        //update friendly to include the removal of the "from" position
+        if (board.getCurrentPlayer() == Player.BLUE) {
+            board.setBlue(board.getBlue() & board.getStack(0));
+        } else {
+            board.setRed(board.getRed() & board.getStack(0));
+        }
+
+        //delete beaten enemy Stack
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            board.setStack(i, (board.getStack(i) & enemy ^ to & board.getStack(i)) | (friendly & board.getStack(i)));
+        }
+        //update enemy to include the removal of beaten stack
+        if (board.getCurrentPlayer() == Player.BLUE) {
+            board.setRed(enemy & board.getStack(0));
+        } else {
+            board.setBlue((enemy & board.getStack(0)));
+        }
+
+        //increase Stacks which player who moved owns
+        n = move.height();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            //If there is no bit present at the "to" position the | operation will lead to that bit being added which means the height of the Stack at that position will be increased by 1
+            if ((board.getStack(i) | to) != board.getStack(i)) {
+                board.setStack(i, board.getStack(i) | to);
+                n--;
+            }
+            if (n == 0) {
+                break;
+            }
+        }
+
+        //update friendly to include the increased Stack
+        if (board.getCurrentPlayer() == Player.BLUE) {
+            board.setBlue(board.getStack(0) ^ board.getRed());
+        } else {
+            board.setRed(board.getStack(0) ^ board.getBlue());
+        }
+
+
+        // update guard mask
+        if ((board.getGuards() | from) == board.getGuards()) {
+            board.setGuards(board.getGuards() ^ from ^ to | to);
+        } else if ((board.getGuards() | to) == board.getGuards()) {
+            board.setGuards(board.getGuards() ^ to);
+        }
+
+        //update currentPlayer
+        if (board.getCurrentPlayer() == Player.BLUE) {
+            board.setCurrentPlayer(Player.RED);
+        } else if (board.getCurrentPlayer() == Player.RED) {
+            board.setCurrentPlayer(Player.BLUE);
+        }
+
+        return board;
     }
 
     public Board copy() {

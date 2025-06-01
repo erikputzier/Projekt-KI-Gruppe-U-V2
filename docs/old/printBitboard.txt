@@ -1,0 +1,11 @@
+public static void printBitboard(long bitboard) {
+    System.out.println("Bitboard-Darstellung:");
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            int index = y * BOARD_SIZE + x;
+            boolean isSet = ((bitboard >> index) & 1L) != 0;
+            System.out.print(isSet ? "1 " : ". ");
+        }
+        System.out.println();
+    }
+}
