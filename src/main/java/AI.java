@@ -2,6 +2,7 @@ import java.util.List;
 
 public class AI {
     private static final int MAX_PLIES = 64;   // depth guard
+    private static long startTime;
 
     public static MovePair pickMove(Board board) {
         List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
@@ -10,14 +11,12 @@ public class AI {
         int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         // start global timer only ONCE
-        long startTime = System.currentTimeMillis();
-        long timeLimit = 2000;
-        long branchLimit = timeLimit / legalMoves.size();
-
+        startTime = System.currentTimeMillis();
+        int moveCounter = 0;
         for (MovePair move : legalMoves) {
             Board newBoard = Board.makeMove(move, board.copy());
 
-            int eval = AI.minimaxAlphaBeta(newBoard, branchLimit);
+            int eval = AI.minimaxAlphaBeta(newBoard, 2000);
 
             if (maximizingPlayer && eval > bestValue) {
                 bestValue = eval;
@@ -26,29 +25,28 @@ public class AI {
                 bestValue = eval;
                 bestMove = move;
             }
+            moveCounter++;
+            // stop looping if we ran out of time
             if (System.currentTimeMillis() - startTime > 2000) break;
         }
+        System.out.println(moveCounter + " out of" + legalMoves.size() + " moves");
         System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
         return bestMove;
-    }
-
-    private static int evaluate(Board board) {
-        return board.numPieces(Player.RED) - board.numPieces(Player.BLUE);
     }
 
     public static int minimax(Board board, int depth, boolean maximizingPlayer) {
 
         /* ---------- hard stop: search horizon reached ------------------------- */
-        if (depth == 0) return evaluate(board);
+        if (depth == 0) return Eval.evaluate(board);
 
         /* ---------- game end check (the side that just moved) ------------------ */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
-        if (Board.checkplayerWon(board, prev)) return evaluate(board);
+        if (Board.checkplayerWon(board, prev)) return Eval.evaluate(board);
 
         /* ---------- generate legal moves --------------------------------------- */
         List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
         if (moves.isEmpty())                           // stalemate or no moves
-            return evaluate(board);
+            return Eval.evaluate(board);
 
         /* ---------- recursive descent ------------------------------------------ */
         int best;
@@ -73,11 +71,10 @@ public class AI {
 
     public static int minimaxAlphaBeta(Board root, long timeLimitMs) {              // convenience
         boolean rootIsMax = (root.getCurrentPlayer() == Player.RED);
-        long start = System.currentTimeMillis();
         return minimaxAlphaBeta(root,                     /* board     */
                 rootIsMax,                                /* max player*/
                 Integer.MIN_VALUE, Integer.MAX_VALUE,     /* α, β      */
-                start, timeLimitMs,                       /* timing    */
+                startTime, timeLimitMs,                       /* timing    */
                 0);                                       /* ply = 0   */
     }
 
@@ -87,17 +84,17 @@ public class AI {
     private static int minimaxAlphaBeta(Board board, boolean maximizingPlayer, int alpha, int beta, long startTime, long timeLimitMs, int ply) {
 
         /* ---------- hard stops: out of time OR too deep ------------------------ */
-        if (System.currentTimeMillis() - startTime > timeLimitMs || ply >= MAX_PLIES) return evaluate(board);
+        if (System.currentTimeMillis() - startTime > timeLimitMs || ply >= MAX_PLIES) return Eval.evaluate(board);
 
         /* ---------- game-ending positions -------------------------------------- */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
         if (Board.checkplayerWon(board, prev))          // last mover just won
-            return evaluate(board);
+            return Eval.evaluate(board);
 
         /* ---------- enumerate legal moves -------------------------------------- */
         List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
         if (moves.isEmpty())                            // stalemate or no moves
-            return evaluate(board);
+            return Eval.evaluate(board);
 
         /* ---------- standard alpha–beta recursion ------------------------------ */
         int best;
