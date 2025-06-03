@@ -13,10 +13,12 @@ public class AI {
         // start global timer only ONCE
         startTime = System.currentTimeMillis();
         int moveCounter = 0;
+        long timeLimit = 2000;
+        long branchLimit = timeLimit / legalMoves.size();
         for (MovePair move : legalMoves) {
             Board newBoard = Board.makeMove(move, board.copy());
 
-            int eval = AI.minimaxAlphaBeta(newBoard, 2000);
+            int eval = AI.minimaxAlphaBeta(newBoard, branchLimit);
 
             if (maximizingPlayer && eval > bestValue) {
                 bestValue = eval;
