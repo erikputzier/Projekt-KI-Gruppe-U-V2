@@ -2,7 +2,6 @@ import java.util.List;
 
 public class AI {
     private static final int MAX_PLIES = 64;   // depth guard
-    private static long startTime;
 
     public static MovePair pickMove(Board board) {
         List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
@@ -11,7 +10,7 @@ public class AI {
         int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         // start global timer only ONCE
-        startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         int moveCounter = 0;
         long timeLimit = 2000;
         long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size());
@@ -73,10 +72,11 @@ public class AI {
 
     public static int minimaxAlphaBeta(Board root, long timeLimitMs) {              // convenience
         boolean rootIsMax = (root.getCurrentPlayer() == Player.RED);
+        long start = System.currentTimeMillis();
         return minimaxAlphaBeta(root,                     /* board     */
                 rootIsMax,                                /* max player*/
                 Integer.MIN_VALUE, Integer.MAX_VALUE,     /* α, β      */
-                startTime, timeLimitMs,                       /* timing    */
+                start, timeLimitMs,                       /* timing    */
                 0);                                       /* ply = 0   */
     }
 
