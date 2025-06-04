@@ -1,7 +1,53 @@
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class AI {
     private static final int MAX_PLIES = 64;   // depth guard
+
+    /**
+     * Orders moves based on their estimated value to improve alpha-beta pruning efficiency.
+     * Better moves are placed earlier in the list to increase the likelihood of cutoffs.
+     *
+     * @param moves            List of legal moves to be ordered
+     * @param board            Current board state
+     * @param maximizingPlayer Whether the current player is maximizing
+     * @return Ordered list of moves
+     */
+    private static List<MovePair> orderMoves(List<MovePair> moves, Board board, boolean maximizingPlayer) {
+        // Create a list to store moves with their scores
+        List<ScoredMove> scoredMoves = new ArrayList<>();
+
+        // Score each move by applying it and evaluating the resulting position
+        for (MovePair move : moves) {
+            Board newBoard = Board.makeMove(move, board.copy());
+            int score = Eval.evaluate(newBoard);
+            scoredMoves.add(new ScoredMove(move, score));
+        }
+
+        // Sort moves based on their scores
+        if (maximizingPlayer) {
+            // For maximizing player, higher scores are better
+            scoredMoves.sort(Comparator.comparing(ScoredMove::score).reversed());
+        } else {
+            // For minimizing player, lower scores are better
+            scoredMoves.sort(Comparator.comparing(ScoredMove::score));
+        }
+
+        // Extract just the moves from the scored moves
+        List<MovePair> orderedMoves = new ArrayList<>();
+        for (ScoredMove scoredMove : scoredMoves) {
+            orderedMoves.add(scoredMove.move());
+        }
+
+        return orderedMoves;
+    }
+
+    /**
+     * Record to store a move with its evaluation score
+     */
+    private record ScoredMove(MovePair move, int score) {
+    }
 
     public static MovePair pickMove(Board board) {
         List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
@@ -13,8 +59,12 @@ public class AI {
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
         long timeLimit = 2000;
-        long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size());
-        for (MovePair move : legalMoves) {
+        long branchLimit = (long) (timeLimit * 1.1 / legalMoves.size());
+
+        // Order moves to evaluate better moves first
+        List<MovePair> orderedMoves = orderMoves(legalMoves, board, maximizingPlayer);
+
+        for (MovePair move : orderedMoves) {
             Board newBoard = Board.makeMove(move, board.copy());
 
             int eval = AI.minimaxAlphaBeta(newBoard, branchLimit);
@@ -49,18 +99,21 @@ public class AI {
         if (moves.isEmpty())                           // stalemate or no moves
             return Eval.evaluate(board);
 
+        /* ---------- order moves to improve search efficiency ------------------ */
+        List<MovePair> orderedMoves = orderMoves(moves, board, maximizingPlayer);
+
         /* ---------- recursive descent ------------------------------------------ */
         int best;
         if (maximizingPlayer) {
             best = Integer.MIN_VALUE;
-            for (MovePair m : moves) {
+            for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());  // safe copy
                 int score = minimax(child, depth - 1, false);
                 best = Math.max(best, score);
             }
         } else {                                       // minimizing player
             best = Integer.MAX_VALUE;
-            for (MovePair m : moves) {
+            for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());
                 int score = minimax(child, depth - 1, true);
                 best = Math.min(best, score);
@@ -98,11 +151,14 @@ public class AI {
         if (moves.isEmpty())                            // stalemate or no moves
             return Eval.evaluate(board);
 
+        /* ---------- order moves to improve alpha-beta efficiency --------------- */
+        List<MovePair> orderedMoves = orderMoves(moves, board, maximizingPlayer);
+
         /* ---------- standard alpha–beta recursion ------------------------------ */
         int best;
         if (maximizingPlayer) {
             best = Integer.MIN_VALUE;
-            for (MovePair m : moves) {
+            for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());           // safe copy
                 int score = minimaxAlphaBeta(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
                 best = Math.max(best, score);
@@ -111,7 +167,7 @@ public class AI {
             }
         } else { // minimizing player
             best = Integer.MAX_VALUE;
-            for (MovePair m : moves) {
+            for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());
                 int score = minimaxAlphaBeta(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
                 best = Math.min(best, score);
