@@ -17,23 +17,22 @@ public final class Eval {
      *    minor factors never override winning / losing a guard, while
      *    still letting them break ties when material is equal.
      */
-    private static final int WIN_LOSS_WEIGHT           = 100_000;   // decisive
-    private static final int GUARD_CAPTURE_WEIGHT      = 10_000;    // almost‑decisive
-    private static final int MATERIAL_PER_PIECE        =   100;     // base material
-    private static final int TOWER_EXTRA_PER_LEVEL     =    15;     // high stacks better
-    private static final int CENTER_CONTROL_BONUS      =    12;     // positional
-    private static final int FILE_ALIGNED_GUARD_BONUS  =    10;     // rook‑like pressure
-    private static final int GUARD_PROGRESS_BONUS      =    20;     // end‑game racing
-    private static final int MOBILITY_PER_MOVE         =     2;     // small, tie‑breaker
-    private static final int BLOCKED_TOWER_PENALTY     =   -10;     // discourages self‑jams
-    private static final int GUARD_SAFETY_PER_FRIEND   =    25;     // shield
-    private static final int GUARD_THREAT_PER_ENEMY    =   -30;     // danger!
+    private static final int WIN_LOSS_WEIGHT = 100_000;   // decisive
+    private static final int MATERIAL_PER_PIECE = 100;     // base material
+    private static final int TOWER_EXTRA_PER_LEVEL = 15;     // high stacks better
+    private static final int CENTER_CONTROL_BONUS = 12;     // positional
+    private static final int FILE_ALIGNED_GUARD_BONUS = 10;     // rook‑like pressure
+    private static final int GUARD_PROGRESS_BONUS = 20;     // end‑game racing
+    private static final int MOBILITY_PER_MOVE = 2;     // small, tie‑breaker
+    private static final int BLOCKED_TOWER_PENALTY = -10;     // discourages self‑jams
+    private static final int GUARD_SAFETY_PER_FRIEND = 25;     // shield
+    private static final int GUARD_THREAT_PER_ENEMY = -30;     // danger!
 
     /*
      * Main entry – returns (score for RED – score for BLUE).
      */
     public static int evaluate(Board b) {
-        int red  = evaluateSide(b, Player.RED);
+        int red = evaluateSide(b, Player.RED);
         int blue = evaluateSide(b, Player.BLUE);
         return red - blue;
     }
@@ -45,8 +44,8 @@ public final class Eval {
         int score = 0;
 
         /* 1️⃣ Win/Loss detection – overrides everything else. */
-        if (Board.checkplayerWon(board, side))              return WIN_LOSS_WEIGHT;
-        if (Board.checkplayerWon(board, opposite(side)))    return -WIN_LOSS_WEIGHT;
+        if (Board.checkplayerWon(board, side)) return WIN_LOSS_WEIGHT;
+        if (Board.checkplayerWon(board, opposite(side))) return -WIN_LOSS_WEIGHT;
 
         /* 2️⃣ Material – each piece is worth 100 points. */
         int pieces = board.numPieces(side);
@@ -94,7 +93,8 @@ public final class Eval {
         return extra;
     }
 
-    private static final int[] CENTER_SQUARES = { 15,16,17,22,23,24,29,30,31 }; // 7×7 index
+    private static final int[] CENTER_SQUARES = {15, 16, 17, 22, 23, 24, 29, 30, 31}; // 7×7 index
+
     private static int countInCenter(Board b, Player side) {
         long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
         int cnt = 0;
@@ -103,21 +103,23 @@ public final class Eval {
     }
 
     private static int alignedWithEnemyGuard(Board b, Player side) {
-        long myTowers   = (side == Player.RED) ? b.getRed() : b.getBlue();
+        long myTowers = (side == Player.RED) ? b.getRed() : b.getBlue();
         long enemyGuard = b.getGuards() & ((side == Player.RED) ? b.getBlue() : b.getRed());
         if (enemyGuard == 0) return 0; // guard already captured – handled earlier
         int guardIdx = Long.numberOfTrailingZeros(enemyGuard);
         int gRow = guardIdx / 7, gCol = guardIdx % 7;
         int aligned = 0;
-        for (int idx = 0; idx < 49; idx++) if (((myTowers >> idx) & 1L) != 0) {
-            int r = idx / 7, c = idx % 7;
-            if (r == gRow || c == gCol) aligned++;
-        }
+        for (int idx = 0; idx < 49; idx++)
+            if (((myTowers >> idx) & 1L) != 0) {
+                int r = idx / 7, c = idx % 7;
+                if (r == gRow || c == gCol) aligned++;
+            }
         return aligned;
     }
 
-    private static final int[] CASTLE_INDEX = { 3, 45 }; // Red target, Blue target
+    private static final int[] CASTLE_INDEX = {3, 45}; // Red target, Blue target
     private static final int MAX_DISTANCE = 12; // Manhattan dist on 7×7 board ≤12
+
     private static int guardDistanceToTarget(Board b, Player side) {
         long guard = b.getGuards() & ((side == Player.RED) ? b.getRed() : b.getBlue());
         if (guard == 0) return MAX_DISTANCE; // captured – hopeless
@@ -137,9 +139,10 @@ public final class Eval {
             int from = m.from();
             hasMove[from] = true;
         }
-        for (int idx = 0; idx < 49; idx++) if (((mask >> idx) & 1L) != 0) {
-            if (!hasMove[idx]) blocked++;
-        }
+        for (int idx = 0; idx < 49; idx++)
+            if (((mask >> idx) & 1L) != 0) {
+                if (!hasMove[idx]) blocked++;
+            }
         return blocked;
     }
 
@@ -150,10 +153,11 @@ public final class Eval {
         int gr = g / 7, gc = g % 7;
         long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
         int cnt = 0;
-        for (int idx = 0; idx < 49; idx++) if (((mask >> idx) & 1L) != 0 && idx != g) {
-            int r = idx / 7, c = idx % 7;
-            if (Math.abs(r - gr) + Math.abs(c - gc) <= 2) cnt++;
-        }
+        for (int idx = 0; idx < 49; idx++)
+            if (((mask >> idx) & 1L) != 0 && idx != g) {
+                int r = idx / 7, c = idx % 7;
+                if (Math.abs(r - gr) + Math.abs(c - gc) <= 2) cnt++;
+            }
         return cnt;
     }
 
@@ -164,10 +168,11 @@ public final class Eval {
         int gr = g / 7, gc = g % 7;
         long mask = (side == Player.RED) ? b.getBlue() : b.getRed();
         int cnt = 0;
-        for (int idx = 0; idx < 49; idx++) if (((mask >> idx) & 1L) != 0) {
-            int r = idx / 7, c = idx % 7;
-            if (Math.abs(r - gr) + Math.abs(c - gc) <= 2) cnt++;
-        }
+        for (int idx = 0; idx < 49; idx++)
+            if (((mask >> idx) & 1L) != 0) {
+                int r = idx / 7, c = idx % 7;
+                if (Math.abs(r - gr) + Math.abs(c - gc) <= 2) cnt++;
+            }
         return cnt;
     }
 }

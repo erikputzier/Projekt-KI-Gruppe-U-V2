@@ -14,7 +14,7 @@ public class AI {
         startTime = System.currentTimeMillis();
         int moveCounter = 0;
         long timeLimit = 2000;
-        long branchLimit = timeLimit / legalMoves.size();
+        long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size());
         for (MovePair move : legalMoves) {
             Board newBoard = Board.makeMove(move, board.copy());
 
