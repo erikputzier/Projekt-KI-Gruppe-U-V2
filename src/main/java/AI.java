@@ -4,6 +4,12 @@ import java.util.List;
 
 public class AI {
     private static final int MAX_PLIES = 64;   // depth guard
+    static long nodesVisited = 0;
+    static long cutoffs = 0;
+    static double percent = 0.0;
+    static int runs = 0;
+    static double average;
+
 
     /**
      * Orders moves based on their estimated value to improve alpha-beta pruning efficiency.
@@ -50,6 +56,8 @@ public class AI {
     }
 
     public static MovePair pickMove(Board board) {
+        nodesVisited = 0;
+        cutoffs = 0;
         List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
         boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
         MovePair bestMove = null;
@@ -59,7 +67,7 @@ public class AI {
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
         long timeLimit = 2000;
-        long branchLimit = (long) (timeLimit * 1.1 / legalMoves.size());
+        long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size());
 
         // Order moves to evaluate better moves first
         List<MovePair> orderedMoves = orderMoves(legalMoves, board, maximizingPlayer);
@@ -80,6 +88,11 @@ public class AI {
             // stop looping if we ran out of time
             if (System.currentTimeMillis() - startTime > 2000) break;
         }
+        percent += 100.0 * cutoffs / nodesVisited;
+        runs++;
+        average = percent / runs;
+        System.out.printf("Average alpha-beta cutoff ratio: %.1f%%%n", average);
+        System.out.printf("αβ-cut ratio: %.1f%%%n", 100.0 * cutoffs / nodesVisited);
         System.out.println(moveCounter + " out of" + legalMoves.size() + " moves");
         System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
         return bestMove;
@@ -163,7 +176,10 @@ public class AI {
                 int score = minimaxAlphaBeta(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
                 best = Math.max(best, score);
                 alpha = Math.max(alpha, best);
-                if (alpha >= beta) break;                                // cut-off
+                if (alpha >= beta) {
+                    cutoffs++;
+                    break;
+                }                                 // cut-off
             }
         } else { // minimizing player
             best = Integer.MAX_VALUE;
@@ -172,9 +188,13 @@ public class AI {
                 int score = minimaxAlphaBeta(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
                 best = Math.min(best, score);
                 beta = Math.min(beta, best);
-                if (beta <= alpha) break;
+                if (beta <= alpha) {
+                    cutoffs++;
+                    break;
+                }
             }
         }
+        nodesVisited++;
         return best;
     }
 }
