@@ -29,7 +29,7 @@ public class AI {
         return bestMove;
     }
 
-    private static int evaluate(Board board) {
+    static int evaluate(Board board) {
         return board.numPieces(Player.RED) - board.numPieces(Player.BLUE);
     }
 
