@@ -6,9 +6,12 @@ public class AI {
     private static final int MAX_PLIES = 64;   // depth guard
     static long nodesVisited = 0;
     static long cutoffs = 0;
+    static long ttHits = 0; // Counter for transposition table hits
     static double percent = 0.0;
     static int runs = 0;
     static double average;
+
+    private static final TranspositionTable transpositionTable = new TranspositionTable();
 
 
     /**
@@ -58,6 +61,9 @@ public class AI {
     public static MovePair pickMove(Board board) {
         nodesVisited = 0;
         cutoffs = 0;
+        ttHits = 0; // Reset TT hits counter
+        //transpositionTable.clear(); // Clear TT before new move search
+
         List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
         boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
         MovePair bestMove = null;
@@ -70,9 +76,9 @@ public class AI {
         long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size());
 
         // Order moves to evaluate better moves first
-        List<MovePair> orderedMoves = orderMoves(legalMoves, board, maximizingPlayer);
+        //List<MovePair> orderedMoves = orderMoves(legalMoves, board, maximizingPlayer);
 
-        for (MovePair move : orderedMoves) {
+        for (MovePair move : legalMoves) {
             Board newBoard = Board.makeMove(move, board.copy());
 
             int eval = AI.minimaxAlphaBeta(newBoard, branchLimit);
@@ -93,6 +99,7 @@ public class AI {
         average = percent / runs;
         System.out.printf("Average alpha-beta cutoff ratio: %.1f%%%n", average);
         System.out.printf("αβ-cut ratio: %.1f%%%n", 100.0 * cutoffs / nodesVisited);
+        System.out.printf("TT hits: %d%n", ttHits); // Print TT hits
         System.out.println(moveCounter + " out of" + legalMoves.size() + " moves");
         System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
         return bestMove;
@@ -102,6 +109,16 @@ public class AI {
 
         /* ---------- hard stop: search horizon reached ------------------------- */
         if (depth == 0) return Eval.evaluate(board);
+
+        long zobristHash = ZobristHashing.computeHash(board);
+        TranspositionTable.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
+
+        if (ttEntry != null && ttEntry.depth >= depth) {
+            ttHits++;
+            if (ttEntry.entryType == TranspositionTable.EXACT_SCORE) {
+                return ttEntry.score;
+            }
+        }
 
         /* ---------- game end check (the side that just moved) ------------------ */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
@@ -117,21 +134,29 @@ public class AI {
 
         /* ---------- recursive descent ------------------------------------------ */
         int best;
+        MovePair bestMoveForTT = null;
         if (maximizingPlayer) {
             best = Integer.MIN_VALUE;
             for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());  // safe copy
                 int score = minimax(child, depth - 1, false);
-                best = Math.max(best, score);
+                if (score > best) {
+                    best = score;
+                    bestMoveForTT = m;
+                }
             }
         } else {                                       // minimizing player
             best = Integer.MAX_VALUE;
             for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());
                 int score = minimax(child, depth - 1, true);
-                best = Math.min(best, score);
+                if (score < best) {
+                    best = score;
+                    bestMoveForTT = m;
+                }
             }
         }
+        transpositionTable.store(zobristHash, best, depth, TranspositionTable.EXACT_SCORE, bestMoveForTT);
         return best;
     }
 
@@ -151,6 +176,26 @@ public class AI {
     // -----------------------------------------------------------------------------
     private static int minimaxAlphaBeta(Board board, boolean maximizingPlayer, int alpha, int beta, long startTime, long timeLimitMs, int ply) {
 
+        /* ---------- Zobrist Hashing and Transposition Table Lookup ------------- */
+        long zobristHash = ZobristHashing.computeHash(board);
+        TranspositionTable.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
+        int originalAlpha = alpha; // Store original alpha for TT storing
+        int originalBeta = beta;   // Store original beta for TT storing
+
+        if (ttEntry != null && ttEntry.depth >= (MAX_PLIES - ply)) { // Compare with remaining depth
+            ttHits++;
+            if (ttEntry.entryType == TranspositionTable.EXACT_SCORE) {
+                return ttEntry.score;
+            } else if (ttEntry.entryType == TranspositionTable.LOWER_BOUND) {
+                alpha = Math.max(alpha, ttEntry.score);
+            } else if (ttEntry.entryType == TranspositionTable.UPPER_BOUND) {
+                beta = Math.min(beta, ttEntry.score);
+            }
+            if (alpha >= beta) {
+                return ttEntry.score; // Or alpha/beta depending on bound type, but score should be fine for cutoffs
+            }
+        }
+
         /* ---------- hard stops: out of time OR too deep ------------------------ */
         if (System.currentTimeMillis() - startTime > timeLimitMs || ply >= MAX_PLIES) return Eval.evaluate(board);
 
@@ -166,28 +211,42 @@ public class AI {
 
         /* ---------- order moves to improve alpha-beta efficiency --------------- */
         List<MovePair> orderedMoves = orderMoves(moves, board, maximizingPlayer);
+        // If a best move was found in TT, try it first
+        if (ttEntry != null && ttEntry.bestMove != null) {
+            orderedMoves.remove(ttEntry.bestMove); // Remove if present to avoid duplicate
+            orderedMoves.addFirst(ttEntry.bestMove); // Add to the front
+        }
+
 
         /* ---------- standard alpha–beta recursion ------------------------------ */
-        int best;
+        int bestScore;
+        MovePair bestMoveForTT = null;
+
         if (maximizingPlayer) {
-            best = Integer.MIN_VALUE;
+            bestScore = Integer.MIN_VALUE;
             for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());           // safe copy
                 int score = minimaxAlphaBeta(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
-                best = Math.max(best, score);
-                alpha = Math.max(alpha, best);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMoveForTT = m;
+                }
+                alpha = Math.max(alpha, bestScore);
                 if (alpha >= beta) {
                     cutoffs++;
                     break;
-                }                                 // cut-off
+                }
             }
         } else { // minimizing player
-            best = Integer.MAX_VALUE;
+            bestScore = Integer.MAX_VALUE;
             for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());
                 int score = minimaxAlphaBeta(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
-                best = Math.min(best, score);
-                beta = Math.min(beta, best);
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestMoveForTT = m;
+                }
+                beta = Math.min(beta, bestScore);
                 if (beta <= alpha) {
                     cutoffs++;
                     break;
@@ -195,6 +254,18 @@ public class AI {
             }
         }
         nodesVisited++;
-        return best;
+
+        // Store result in Transposition Table
+        int entryType;
+        if (bestScore <= originalAlpha) { // Failed low (upper bound)
+            entryType = TranspositionTable.UPPER_BOUND;
+        } else if (bestScore >= originalBeta) { // Failed high (lower bound)
+            entryType = TranspositionTable.LOWER_BOUND;
+        } else { // Exact score
+            entryType = TranspositionTable.EXACT_SCORE;
+        }
+        transpositionTable.store(zobristHash, bestScore, (MAX_PLIES - ply), entryType, bestMoveForTT);
+
+        return bestScore;
     }
 }
