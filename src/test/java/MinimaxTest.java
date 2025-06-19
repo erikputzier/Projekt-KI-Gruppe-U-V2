@@ -26,7 +26,7 @@ public class MinimaxTest {
         Board board = new Board("b36/3b12r3/7/7/1r2RG4/2BG4/6r1 b");
         long start = System.currentTimeMillis();
         for(int i = 0; i < 10000; i++){
-            AI.evaluate(board);
+            Eval.evaluate(board);
         }
         System.out.println("Dauer: " + (System.currentTimeMillis() - start));
     }

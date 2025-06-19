@@ -120,7 +120,7 @@ public final class Eval {
     private static final int[] CASTLE_INDEX = {3, 45}; // Red target, Blue target
     private static final int MAX_DISTANCE = 12; // Manhattan dist on 7×7 board ≤12
 
-    private static int guardDistanceToTarget(Board b, Player side) {
+    public static int guardDistanceToTarget(Board b, Player side) {
         long guard = b.getGuards() & ((side == Player.RED) ? b.getRed() : b.getBlue());
         if (guard == 0) return MAX_DISTANCE; // captured – hopeless
         int idx = Long.numberOfTrailingZeros(guard);

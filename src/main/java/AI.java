@@ -72,7 +72,8 @@ public class AI {
         // start global timer only ONCE
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
-        long timeLimit = 2000;
+        long baseTimeLimit = 1000;
+        long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
         long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size());
 
         // Order moves to evaluate better moves first
@@ -214,7 +215,7 @@ public class AI {
         // If a best move was found in TT, try it first
         if (ttEntry != null && ttEntry.bestMove != null) {
             orderedMoves.remove(ttEntry.bestMove); // Remove if present to avoid duplicate
-            orderedMoves.addFirst(ttEntry.bestMove); // Add to the front
+            orderedMoves.add(0,ttEntry.bestMove); // Add to the front
         }
 
 
