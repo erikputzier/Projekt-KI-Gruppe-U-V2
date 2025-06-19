@@ -16,7 +16,7 @@ public class TimeManager {
                         + tensionScore * 0.6;
 
         // Normalisierung
-        double timeFactor = Math.min(4.0, 1.0 + weightedScore);  // max 4x Zeit
+        double timeFactor = Math.min(6.0, 1.0 + weightedScore * 2.0);  // max 4x Zeit
 
         return (long) (baseTimeMs * timeFactor);
     }

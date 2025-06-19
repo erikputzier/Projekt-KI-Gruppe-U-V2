@@ -72,10 +72,10 @@ public class AI {
         // start global timer only ONCE
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
-        long baseTimeLimit = 1000;
+        long baseTimeLimit = 4000;
         long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
-        long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size());
-
+        long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size()); // war timeLimit * 0.92 / legalMoves.size()
+        System.out.println(timeLimit);
         // Order moves to evaluate better moves first
         //List<MovePair> orderedMoves = orderMoves(legalMoves, board, maximizingPlayer);
 

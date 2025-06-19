@@ -25,7 +25,7 @@ public final class Eval {
     private static final int GUARD_PROGRESS_BONUS = 20;     // end‑game racing
     private static final int MOBILITY_PER_MOVE = 2;     // small, tie‑breaker
     private static final int BLOCKED_TOWER_PENALTY = -10;     // discourages self‑jams
-    private static final int GUARD_SAFETY_PER_FRIEND = 25;     // shield
+    private static final int GUARD_SAFETY_PER_FRIEND = 5;     // shield (was 25)
     private static final int GUARD_THREAT_PER_ENEMY = -30;     // danger!
 
     /*
