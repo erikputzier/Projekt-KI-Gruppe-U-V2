@@ -142,7 +142,6 @@ public class AI {
                 Board newBoard = Board.makeMove(move, board.copy());
 
                 int eval = AI.minimaxAlphaBeta(newBoard, branchLimit);
-                nodesVisited++;
 
                 if (maximizingPlayer && eval > bestValue) {
                     bestValue = eval;
