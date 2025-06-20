@@ -30,4 +30,11 @@ public class MinimaxTest {
         }
         System.out.println("Dauer: " + (System.currentTimeMillis() - start));
     }
+
+  @Test
+  public void benchmarkMinimaxAlphaBeta(){
+      System.out.println("---------Benchmark Start Board---------");
+      Board startBoard = new Board();
+      AI.pickMove(startBoard);
+  }
 }
