@@ -62,5 +62,3 @@ public class ZobristHashing {
         return hash;
     }
 }
-
-

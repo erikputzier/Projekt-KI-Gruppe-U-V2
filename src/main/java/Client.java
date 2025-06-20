@@ -155,7 +155,7 @@ public class Client {
      */
     private String chooseMove(String fen) {
         try {
-            MovePair choice = AI.pickMoveIterativeDeepening(new Board(fen));
+            MovePair choice = AI.pickMove(new Board(fen));
             return choice.toMove().toAlgebraic();
 
         } catch (Exception e) {                                 // any parsing / engine failure → no move

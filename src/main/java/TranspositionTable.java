@@ -49,4 +49,3 @@ public class TranspositionTable {
         return table.size();
     }
 }
-

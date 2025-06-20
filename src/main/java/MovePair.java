@@ -7,7 +7,7 @@ public record MovePair(int from, int to, int height) {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof MovePair(int from1, int v, int height1))) return false;
-        return this.from == from && this.to == v && this.height == height1;
+        return this.from == from1 && this.to == v && this.height == height1;
     }
 
     @Override

@@ -1,20 +1,15 @@
 import java.util.List;
-import java.math.*;
 
 public class TimeManager {
 
-    public static long computeTimeBudget(Board board,List<MovePair> moves, long baseTimeMs) {
-        double mobilityScore = computeMobilityFactor(board, moves);
+    public static long computeTimeBudget(Board board, List<MovePair> moves, long baseTimeMs) {
+        double mobilityScore = computeMobilityFactor(moves);
         double instabilityScore = computeInstabilityFactor(board, moves);
         double pressureScore = computeGuardPressureFactor(board);
         double tensionScore = computeTacticalTension(board, moves);
 
         // Gewichtung je nach Bedeutung
-        double weightedScore =
-                mobilityScore * 0.4
-                        + instabilityScore * 0.0
-                        + pressureScore * 0.8
-                        + tensionScore * 0.6;
+        double weightedScore = mobilityScore * 0.4 + instabilityScore * 0.0 + pressureScore * 0.8 + tensionScore * 0.6;
 
         // Normalisierung
         double timeFactor = Math.min(4, 1.0 + weightedScore);  // max 4x Zeit
@@ -29,8 +24,8 @@ public class TimeManager {
     }
 
     //Wertebereich [1/10, 2], durchschnittlich wahrscheinlich um die 1.5
-    private static double computeMobilityFactor(Board board, List<MovePair> moves) {
-        int numMoves =moves.size();
+    private static double computeMobilityFactor(List<MovePair> moves) {
+        int numMoves = moves.size();
         return Math.min(2.0, numMoves / 10.0); // 10 Züge = neutral, >20 = 2.0
     }
 
@@ -46,8 +41,7 @@ public class TimeManager {
             sum += Math.pow(eval - originalEval, 2);
         }
         double variance = sum / moves.size();
-        double std = Math.sqrt(variance);
-        return std;
+        return Math.sqrt(variance);
     }
 
     public static double computeGuardPressureFactor(Board board) {
@@ -77,10 +71,4 @@ public class TimeManager {
 
         return tensionCount / 10.0; // >10 Drohungen = hoch
     }
-
-
-
-
-
-
 }
