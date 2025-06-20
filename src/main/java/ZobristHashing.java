@@ -2,7 +2,7 @@ import java.util.Random;
 
 public class ZobristHashing {
     private static final int NUM_SQUARES = 49; // 7x7 board
-    // Piece types: 0=BlueGuard, 1=RedGuard, 2-8=BluePawnH1-H7, 9-15=RedPawnH1-H7
+    // Piece types: 0=BlueGuard, 1=RedGuard, 2-8=BlueTowerH1-H7, 9-15=RedTowerH1-H7
     private static final int NUM_PIECE_TYPES = 16;
 
     private static final long[][] zobristKeys = new long[NUM_PIECE_TYPES][NUM_SQUARES];
