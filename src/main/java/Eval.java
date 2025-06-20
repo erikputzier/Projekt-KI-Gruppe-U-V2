@@ -125,7 +125,7 @@ public final class Eval {
         if (guard == 0) return MAX_DISTANCE; // captured – hopeless
         int idx = Long.numberOfTrailingZeros(guard);
         int r = idx / 7, c = idx % 7;
-        int targetIdx = (side == Player.RED) ? CASTLE_INDEX[1] : CASTLE_INDEX[0];
+        int targetIdx = (side == Player.RED) ? CASTLE_INDEX[0] : CASTLE_INDEX[1];
         int tr = targetIdx / 7, tc = targetIdx % 7;
         return Math.abs(r - tr) + Math.abs(c - tc);
     }

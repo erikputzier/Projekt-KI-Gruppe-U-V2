@@ -1,4 +1,5 @@
 import java.util.List;
+import java.math.*;
 
 public class TimeManager {
 
@@ -6,44 +7,57 @@ public class TimeManager {
         double mobilityScore = computeMobilityFactor(board, moves);
         double instabilityScore = computeInstabilityFactor(board, moves);
         double pressureScore = computeGuardPressureFactor(board);
-        double tensionScore = computeTacticalTension(board);
+        double tensionScore = computeTacticalTension(board, moves);
 
         // Gewichtung je nach Bedeutung
         double weightedScore =
                 mobilityScore * 0.4
-                        + instabilityScore * 1.0
+                        + instabilityScore * 0.0
                         + pressureScore * 0.8
                         + tensionScore * 0.6;
 
         // Normalisierung
-        double timeFactor = Math.min(6.0, 1.0 + weightedScore * 2.0);  // max 4x Zeit
+        double timeFactor = Math.min(4.0, 1.0 + weightedScore);  // max 4x Zeit
+
+        // Alle Faktoren ausgeben lassen um Bewertung zu überprüfen
+        System.out.println("Mobility Score: " + mobilityScore);
+        System.out.println("Instability Score: " + instabilityScore);
+        System.out.println("Pressure Score: " + pressureScore);
+        System.out.println("Tension Score: " + tensionScore);
 
         return (long) (baseTimeMs * timeFactor);
     }
 
+    //Wertebereich [1/10, 2], durchschnittlich wahrscheinlich um die 1.5
     private static double computeMobilityFactor(Board board, List<MovePair> moves) {
         int numMoves =moves.size();
         return Math.min(2.0, numMoves / 10.0); // 10 Züge = neutral, >20 = 2.0
     }
 
-    private static double computeInstabilityFactor(Board board, List<MovePair> moves) {
+    // Wertebereich
+    public static double computeInstabilityFactor(Board board, List<MovePair> moves) {
         int originalEval = Eval.evaluate(board);
-
+        System.out.println("Original Eval: " + originalEval);
         double sum = 0;
         for (MovePair move : moves) {
             Board next = Board.makeMove(move, board.copy());
             int eval = Eval.evaluate(next);
-            sum += Math.abs(eval - originalEval);
+            //quadrierte Abweichung der nächsten Bewertungen mit originaler Bewertunge als Mittelwert berechnen
+            sum += Math.pow(eval - originalEval, 2);
         }
-        return sum / Math.max(1, moves.size());
+        double variance = sum / moves.size();
+        double std = Math.sqrt(variance);
+        return std;
     }
 
-    private static double computeGuardPressureFactor(Board board) {
+    public static double computeGuardPressureFactor(Board board) {
         int distanceBlue = Eval.guardDistanceToTarget(board, Player.BLUE);
         int distanceRed = Eval.guardDistanceToTarget(board, Player.RED);
+        System.out.println("Red Distance: " + distanceRed);
+        System.out.println("Blue Distance: " + distanceBlue);
 
         // Normiere auf einen Maximalwert, z.B. 12 (maximale Manhattan-Distanz im 7x7)
-        final int MAX_DIST = 12;
+        final int MAX_DIST = 6;
 
         double pressureBlue = 1.0 - (Math.min(distanceBlue, MAX_DIST) / (double) MAX_DIST);
         double pressureRed = 1.0 - (Math.min(distanceRed, MAX_DIST) / (double) MAX_DIST);
@@ -52,9 +66,8 @@ public class TimeManager {
         return pressureBlue + pressureRed;  // Wertebereich: 0.0 (weit weg) bis 2.0 (beide am Ziel)
     }
 
-    private static double computeTacticalTension(Board board) {
+    private static double computeTacticalTension(Board board, List<MovePair> moves) {
         int tensionCount = 0;
-        List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
         long enemy = board.getCurrentPlayer() == Player.BLUE ? board.getRed() : board.getBlue();
 
         for (MovePair move : moves) {
