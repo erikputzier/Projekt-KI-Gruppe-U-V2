@@ -77,7 +77,8 @@ public class AI {
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
         long baseTimeLimit = 2000;
-        long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
+        long timeLimit = baseTimeLimit;
+        //TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
         long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size()); // war timeLimit * 0.92 / legalMoves.size()
         System.out.println(timeLimit);
         // Order moves to evaluate better moves first
@@ -129,7 +130,7 @@ public class AI {
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
         long baseTimeLimit = 2000;
-        long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
+        long timeLimit = baseTimeLimit;//TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
         long branchLimit = 120000;//(long) (timeLimit * 0.92 / legalMoves.size()); // war timeLimit * 0.92 / legalMoves.size()
         System.out.println(timeLimit);
         // Order moves to evaluate better moves first
@@ -239,7 +240,7 @@ public class AI {
     //  Core recursive search
     // -----------------------------------------------------------------------------
     private static int minimaxAlphaBeta(Board board, boolean maximizingPlayer, int alpha, int beta, long startTime, long timeLimitMs, int ply) {
-
+        nodesVisited++;
         /* ---------- Zobrist Hashing and Transposition Table Lookup ------------- */
         long zobristHash = ZobristHashing.computeHash(board);
         TranspositionTable.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
@@ -249,7 +250,6 @@ public class AI {
         if (ttEntry != null && ttEntry.depth >= (max_plies - ply)) { // Compare with remaining depth
             ttHits++;
             if (ttEntry.entryType == TranspositionTable.EXACT_SCORE) {
-                nodesVisited++;
                 return ttEntry.score;
             } else if (ttEntry.entryType == TranspositionTable.LOWER_BOUND) {
                 alpha = Math.max(alpha, ttEntry.score);
@@ -257,28 +257,24 @@ public class AI {
                 beta = Math.min(beta, ttEntry.score);
             }
             if (alpha >= beta) {
-                nodesVisited++;
                 return ttEntry.score; // Or alpha/beta depending on bound type, but score should be fine for cutoffs
             }
         }
 
         /* ---------- hard stops: out of time OR too deep ------------------------ */
         if (System.currentTimeMillis() - startTime > timeLimitMs || ply >= max_plies) {
-            nodesVisited++;
             return Eval.evaluate(board);
         }
 
         /* ---------- game-ending positions -------------------------------------- */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
-        if (Board.checkplayerWon(board, prev)){         // last mover just won
-            nodesVisited++;
+        if (Board.checkplayerWon(board, prev)) {         // last mover just won
             return Eval.evaluate(board);
         }
 
         /* ---------- enumerate legal moves -------------------------------------- */
         List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
         if (moves.isEmpty()) {                            // stalemate or no moves
-            nodesVisited++;
             return Eval.evaluate(board);
         }
 
@@ -287,7 +283,7 @@ public class AI {
         // If a best move was found in TT, try it first
         if (ttEntry != null && ttEntry.bestMove != null) {
             orderedMoves.remove(ttEntry.bestMove); // Remove if present to avoid duplicate
-            orderedMoves.add(0,ttEntry.bestMove); // Add to the front
+            orderedMoves.add(0, ttEntry.bestMove); // Add to the front
         }
 
 
@@ -338,13 +334,11 @@ public class AI {
             entryType = TranspositionTable.EXACT_SCORE;
         }
         transpositionTable.store(zobristHash, bestScore, (max_plies - ply), entryType, bestMoveForTT);
-
-        nodesVisited++;
         return bestScore;
     }
 
     private static int minimaxAlphaBetaNoTT(Board board, boolean maximizingPlayer, int alpha, int beta, long startTime, long timeLimitMs, int ply) {
-
+        nodesVisited++;
 
 
         /* ---------- hard stops: out of time OR too deep ------------------------ */
@@ -352,7 +346,7 @@ public class AI {
 
         /* ---------- game-ending positions -------------------------------------- */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
-        if (Board.checkplayerWon(board, prev)){         // last mover just won
+        if (Board.checkplayerWon(board, prev)) {         // last mover just won
             return Eval.evaluate(board);
         }
 
@@ -362,7 +356,7 @@ public class AI {
             return Eval.evaluate(board);
 
         /* ---------- order moves to improve alpha-beta efficiency --------------- */
-        List<MovePair> orderedMoves = orderMoves(moves, board, maximizingPlayer);
+        List<MovePair> orderedMoves = moves; //orderMoves(moves, board, maximizingPlayer);
 
 
 
