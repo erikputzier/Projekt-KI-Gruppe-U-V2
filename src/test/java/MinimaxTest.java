@@ -35,6 +35,17 @@ public class MinimaxTest {
   public void benchmarkMinimaxAlphaBeta(){
       System.out.println("---------Benchmark Start Board---------");
       Board startBoard = new Board();
-      AI.pickMove(startBoard);
+      AI.pickMoveIterativeDeepening(startBoard);
+
+      System.out.println("---------Benchmark Midgame Board---------");
+      Board midgameBoard = new Board("7/6r3/1RG5/3b43/1r25/7/2BG3r1 r");
+      AI.pickMoveIterativeDeepening(startBoard);
+
+      System.out.println("---------Benchmark Endgame Board---------");
+      Board endgameBoard = new Board("b36/3b12r3/7/7/1r2RG4/2BG4/6r1 b");
+      AI.pickMoveIterativeDeepening(startBoard);
+
   }
+
+
 }
