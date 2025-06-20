@@ -4,7 +4,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             new Client().start();
-        } catch (Exception e) {35006
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

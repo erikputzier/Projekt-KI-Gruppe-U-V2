@@ -40,7 +40,7 @@ public final class Eval {
     /*
      * Per‑side breakdown so that features stay readable.
      */
-    private static int evaluateSide(Board board, Player side) {
+    public static int evaluateSide(Board board, Player side) {
         int score = 0;
 
         /* 1️⃣ Win/Loss detection – overrides everything else. */
@@ -50,28 +50,37 @@ public final class Eval {
         /* 2️⃣ Material – each piece is worth 100 points. */
         int pieces = board.numPieces(side);
         score += pieces * MATERIAL_PER_PIECE;   // Simple but stable.
+        //System.out.println("Material: " + score);
 
         /* 3️⃣ Tower height – add 15 pts for every extra stone above 1. */
         score += totalExtraTowerLevels(board, side) * TOWER_EXTRA_PER_LEVEL;
-
+        //System.out.println("Tower Levels: " + score);
         /* 4️⃣ Center control – reward pieces in the 3×3 middle. */
-        score += countInCenter(board, side) * CENTER_CONTROL_BONUS;
+        //score += countInCenter(board, side) * CENTER_CONTROL_BONUS;
+        //System.out.println("count in center: " + score);
 
         /* 5️⃣ Aligned attack – towers on same file/rank as enemy guard. */
-        score += alignedWithEnemyGuard(board, side) * FILE_ALIGNED_GUARD_BONUS;
+        //score += alignedWithEnemyGuard(board, side) * FILE_ALIGNED_GUARD_BONUS;
+        //System.out.println("aligned with enemy guard: " + score);
 
         /* 6️⃣ Guard progress – Manhattan distance towards enemy castle. */
         score += (MAX_DISTANCE - guardDistanceToTarget(board, side)) * GUARD_PROGRESS_BONUS;
+        //System.out.println("guard Distance to Target: " + score);
 
         /* 7️⃣ Mobility – each legal move gives +2 (cheap tie‑breaker). */
-        score += MoveGenerator.generateAllLegalMoves(board).size() * MOBILITY_PER_MOVE;
+        //score += MoveGenerator.generateAllLegalMoves(board).size() * MOBILITY_PER_MOVE;
+        //System.out.println("Mobility per move: " + score);
 
         /* 8️⃣ Blocked towers – small penalty per own tower with no moves. */
-        score += -countBlockedTowers(board, side) * BLOCKED_TOWER_PENALTY;
+        //score += countBlockedTowers(board, side) * BLOCKED_TOWER_PENALTY;
+        //System.out.println("Blocked Tower penalty: " + score);
 
         /* 9️⃣ Guard safety / threat within 2 squares. */
-        score += friendsNearGuard(board, side) * GUARD_SAFETY_PER_FRIEND;
-        score += enemiesNearOurGuard(board, side) * GUARD_THREAT_PER_ENEMY;
+        //score += friendsNearGuard(board, side) * GUARD_SAFETY_PER_FRIEND;
+        //System.out.println("Friends near Guard: " + score);
+
+        //score += enemiesNearOurGuard(board, side) * GUARD_THREAT_PER_ENEMY;
+        //System.out.println("Guard Threat per enemy: " + score);
 
         return score;
     }
