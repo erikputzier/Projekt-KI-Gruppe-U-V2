@@ -24,4 +24,44 @@ public class BoardTest {
         assertEquals(8, board.numPieces(Player.BLUE));
         assertEquals(8, board.numPieces(Player.RED));
     }
+
+    @Test
+    public void testBlueWinsByCaptureRedCastle() {
+        // Blue has a guard on Red's castle (position 45)
+        Board board = new Board("3BG3/7/7/7/7/7/5RG1 r");
+        FenUtils.printBoard("3BG3/7/7/7/7/7/5RG1 r");
+        assertTrue(Board.checkplayerWon(board, Player.BLUE));
+    }
+
+    @Test
+    public void testRedWinsByCaptureBluesCastle() {
+        // Red has a guard on Blue's castle (position 3)
+        Board board = new Board("6BG/7/7/7/7/7/3RG3 b");
+        FenUtils.printBoard("6BG/7/7/7/7/7/3RG3 b");
+        assertTrue(Board.checkplayerWon(board, Player.RED));
+    }
+
+    @Test
+    public void testBlueWinsBecauseRedHasNoGuards() {
+        // Red has no guards left
+        Board board = new Board("6BG/6r1/7/7/7/7/3b13 r");
+        FenUtils.printBoard("6BG/6r1/7/7/7/7/3b13 r");
+        assertTrue(Board.checkplayerWon(board, Player.BLUE));
+    }
+
+    @Test
+    public void testRedWinsBecauseBlueHasNoGuards() {
+        // Blue has no guards left
+        Board board = new Board("6b1/7/7/7/7/7/4RG2 b");
+        FenUtils.printBoard("6b1/7/7/7/7/7/4RG2 b");
+        assertTrue(Board.checkplayerWon(board, Player.RED));
+    }
+
+    @Test
+    public void testGameInProgress() {
+        // Standard starting position, no one has won yet
+        Board board = new Board();
+        assertFalse(Board.checkplayerWon(board, Player.BLUE));
+        assertFalse(Board.checkplayerWon(board, Player.RED));
+    }
 }

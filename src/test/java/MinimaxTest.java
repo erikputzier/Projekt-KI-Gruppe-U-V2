@@ -22,30 +22,28 @@ public class MinimaxTest {
         System.out.println(AI.minimaxAlphaBeta(board, 1000));
     }
 
-    void benchmarkEvaluate(){
+    @Test
+    public void benchmarkEvaluate() {
         Board board = new Board("b36/3b12r3/7/7/1r2RG4/2BG4/6r1 b");
         long start = System.currentTimeMillis();
-        for(int i = 0; i < 10000; i++){
+        for (int i = 0; i < 10000; i++) {
             Eval.evaluate(board);
         }
         System.out.println("Dauer: " + (System.currentTimeMillis() - start));
     }
 
-  @Test
-  public void benchmarkMinimaxAlphaBeta(){
-      System.out.println("---------Benchmark Start Board---------");
-      Board startBoard = new Board();
-      AI.pickMoveIterativeDeepening(startBoard);
+    @Test
+    public void benchmarkMinimaxAlphaBeta() {
+        System.out.println("---------Benchmark Start Board---------");
+        Board startBoard = new Board();
+        AI.pickMove(startBoard);
 
-      System.out.println("---------Benchmark Midgame Board---------");
-      Board midgameBoard = new Board("7/6r3/1RG5/3b43/1r25/7/2BG3r1 r");
-      AI.pickMoveIterativeDeepening(startBoard);
+        System.out.println("---------Benchmark Midgame Board---------");
+        Board midgameBoard = new Board("7/6r3/1RG5/3b43/1r25/7/2BG3r1 r");
+        AI.pickMove(midgameBoard);
 
-      System.out.println("---------Benchmark Endgame Board---------");
-      Board endgameBoard = new Board("b36/3b12r3/7/7/1r2RG4/2BG4/6r1 b");
-      AI.pickMoveIterativeDeepening(startBoard);
-
-  }
-
-
+        System.out.println("---------Benchmark Endgame Board---------");
+        Board endgameBoard = new Board("b36/3b12r3/7/7/1r2RG4/2BG4/6r1 b");
+        AI.pickMove(endgameBoard);
+    }
 }
