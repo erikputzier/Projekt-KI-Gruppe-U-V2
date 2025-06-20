@@ -56,11 +56,11 @@ public final class Eval {
         score += totalExtraTowerLevels(board, side) * TOWER_EXTRA_PER_LEVEL;
         //System.out.println("Tower Levels: " + score);
         /* 4️⃣ Center control – reward pieces in the 3×3 middle. */
-        //score += countInCenter(board, side) * CENTER_CONTROL_BONUS;
+        score += countInCenter(board, side) * CENTER_CONTROL_BONUS;
         //System.out.println("count in center: " + score);
 
         /* 5️⃣ Aligned attack – towers on same file/rank as enemy guard. */
-        //score += alignedWithEnemyGuard(board, side) * FILE_ALIGNED_GUARD_BONUS;
+        score += alignedWithEnemyGuard(board, side) * FILE_ALIGNED_GUARD_BONUS;
         //System.out.println("aligned with enemy guard: " + score);
 
         /* 6️⃣ Guard progress – Manhattan distance towards enemy castle. */

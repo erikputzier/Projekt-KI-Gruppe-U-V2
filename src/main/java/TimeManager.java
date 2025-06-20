@@ -17,7 +17,7 @@ public class TimeManager {
                         + tensionScore * 0.6;
 
         // Normalisierung
-        double timeFactor = Math.min(4.0, 1.0 + weightedScore);  // max 4x Zeit
+        double timeFactor = Math.min(4, 1.0 + weightedScore);  // max 4x Zeit
 
         // Alle Faktoren ausgeben lassen um Bewertung zu überprüfen
         System.out.println("Mobility Score: " + mobilityScore);

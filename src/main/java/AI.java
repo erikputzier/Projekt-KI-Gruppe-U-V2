@@ -72,7 +72,7 @@ public class AI {
         // start global timer only ONCE
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
-        long baseTimeLimit = 4000;
+        long baseTimeLimit = 2000;
         long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
         long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size()); // war timeLimit * 0.92 / legalMoves.size()
         System.out.println(timeLimit);
@@ -93,7 +93,7 @@ public class AI {
             }
             moveCounter++;
             // stop looping if we ran out of time
-            if (System.currentTimeMillis() - startTime > 2000) break;
+            if (System.currentTimeMillis() - startTime > timeLimit) break;
         }
         percent += 100.0 * cutoffs / nodesVisited;
         runs++;
@@ -202,8 +202,9 @@ public class AI {
 
         /* ---------- game-ending positions -------------------------------------- */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
-        if (Board.checkplayerWon(board, prev))          // last mover just won
+        if (Board.checkplayerWon(board, prev)){         // last mover just won
             return Eval.evaluate(board);
+        }
 
         /* ---------- enumerate legal moves -------------------------------------- */
         List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
