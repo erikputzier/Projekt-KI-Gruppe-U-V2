@@ -29,6 +29,15 @@ public class TranspositionTable {
         this.table = new HashMap<>();
     }
 
+    /**
+     * Stores a transposition table entry.
+     *
+     * @param zobristHash The Zobrist hash of the position.
+     * @param score       The score associated with the position.
+     * @param depth       The search depth at which this entry was found.
+     * @param entryType   The type of entry (exact, lower bound, upper bound).
+     * @param bestMove    The best move for this position, if applicable.
+     */
     public void store(long zobristHash, int score, int depth, int entryType, MovePair bestMove) {
         // Always replace or store if new. More sophisticated replacement strategies can be added (e.g. deeper entries).
         TTEntry currentEntry = table.get(zobristHash);

@@ -15,12 +15,8 @@ public class AI {
     private static final TranspositionTable transpositionTable = new TranspositionTable();
 
     public static MovePair pickMove(Board board) {
-        max_plies = 0;
-        nodesVisited = 0;
-        positionsSearched = 0;
-        cutoffs = 0;
-        ttHits = 0; // Reset TT hits counter
-        //transpositionTable.clear(); // Clear TT before new move search
+        // Reset counters for each move selection
+        resetCounters();
 
         List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
         boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
@@ -57,79 +53,14 @@ public class AI {
             }
             max_plies++;
         }
-        percent += 100.0 * cutoffs / nodesVisited;
-        runs++;
-        average = percent / runs;
-        System.out.printf("Average alpha-beta cutoff ratio: %.1f%%%n", average);
-        System.out.printf("αβ-cut ratio: %.1f%%%n", 100.0 * cutoffs / nodesVisited);
-        System.out.printf("TT hits: %d%n", ttHits); // Print TT hits
-        System.out.println(STR."\{moveCounter} out of\{legalMoves.size()} moves");
-        System.out.println(STR."Time: \{System.currentTimeMillis() - startTime}ms");
-        System.out.println(STR."Nodes Visited: \{nodesVisited}");
-        System.out.println(STR."Suchtiefe:\{max_plies}");
+        evaluate(moveCounter, legalMoves.size(), startTime);
         return bestMove;
     }
-
-    public static int minimax(Board board, int depth, boolean maximizingPlayer) {
-
-        /* ---------- hard stop: search horizon reached ------------------------- */
-        if (depth == 0) return Eval.evaluate(board);
-
-        long zobristHash = ZobristHashing.computeHash(board);
-        TranspositionTable.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
-
-        if (ttEntry != null && ttEntry.depth >= depth) {
-            ttHits++;
-            if (ttEntry.entryType == TranspositionTable.EXACT_SCORE) {
-                return ttEntry.score;
-            }
-        }
-
-        /* ---------- game end check (the side that just moved) ------------------ */
-        Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
-        if (Board.checkplayerWon(board, prev)) return Eval.evaluate(board);
-
-        /* ---------- generate legal moves --------------------------------------- */
-        List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
-        if (moves.isEmpty())                           // stalemate or no moves
-            return Eval.evaluate(board);
-
-        /* ---------- order moves to improve search efficiency ------------------ */
-        List<MovePair> orderedMoves = MoveOrdering.orderMoves(moves, board, maximizingPlayer);
-
-        /* ---------- recursive descent ------------------------------------------ */
-        int best;
-        MovePair bestMoveForTT = null;
-        if (maximizingPlayer) {
-            best = Integer.MIN_VALUE;
-            for (MovePair m : orderedMoves) {
-                Board child = Board.makeMove(m, board.copy());  // safe copy
-                int score = minimax(child, depth - 1, false);
-                if (score > best) {
-                    best = score;
-                    bestMoveForTT = m;
-                }
-            }
-        } else {                                       // minimizing player
-            best = Integer.MAX_VALUE;
-            for (MovePair m : orderedMoves) {
-                Board child = Board.makeMove(m, board.copy());
-                int score = minimax(child, depth - 1, true);
-                if (score < best) {
-                    best = score;
-                    bestMoveForTT = m;
-                }
-            }
-        }
-        transpositionTable.store(zobristHash, best, depth, TranspositionTable.EXACT_SCORE, bestMoveForTT);
-        return best;
-    }
-
 
     public static int minimaxAlphaBeta(Board root, long timeLimitMs) {              // convenience
         boolean rootIsMax = (root.getCurrentPlayer() == Player.RED);
         long start = System.currentTimeMillis();
-        return minimaxAlphaBetaNoTT(root,                     /* board     */
+        return minimaxAlphaBeta(root,                     /* board     */
                 rootIsMax,                                /* max player*/
                 Integer.MIN_VALUE, Integer.MAX_VALUE,     /* α, β      */
                 start, timeLimitMs,                       /* timing    */
@@ -264,7 +195,7 @@ public class AI {
             bestScore = Integer.MIN_VALUE;
             for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());           // safe copy
-                int score = minimaxAlphaBeta(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
+                int score = minimaxAlphaBetaNoTT(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
                 if (score > bestScore) {
                     bestScore = score;
                 }
@@ -278,7 +209,7 @@ public class AI {
             bestScore = Integer.MAX_VALUE;
             for (MovePair m : orderedMoves) {
                 Board child = Board.makeMove(m, board.copy());
-                int score = minimaxAlphaBeta(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
+                int score = minimaxAlphaBetaNoTT(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
                 if (score < bestScore) {
                     bestScore = score;
                 }
@@ -292,5 +223,33 @@ public class AI {
         positionsSearched++;
 
         return bestScore;
+    }
+
+    public static void evaluate(int moveCounter, int legalMovesSize, long startTime) {
+        // This method can be used to trigger evaluation or analysis of the AI's performance
+        // For example, it could print statistics or reset counters
+        System.out.println("Evaluating AI performance:");
+        System.out.printf("Total positions searched: %d%n", positionsSearched);
+        System.out.printf("Total cutoffs: %d%n", cutoffs);
+        System.out.printf("Transposition Table hits: %d%n", ttHits); // Print TT hits
+        System.out.printf("Average alpha-beta cutoff ratio: %.1f%%%n", average);
+        //
+        percent += 100.0 * cutoffs / nodesVisited;
+        runs++;
+        average = percent / runs;
+        System.out.printf("Average alpha-beta cutoff ratio: %.1f%%%n", average);
+        System.out.printf("αβ-cut ratio: %.1f%%%n", 100.0 * cutoffs / nodesVisited);
+        System.out.println(STR."\{moveCounter} out of\{legalMovesSize} moves");
+        System.out.println(STR."Time: \{System.currentTimeMillis() - startTime}ms");
+        System.out.println(STR."Nodes Visited: \{nodesVisited}");
+        System.out.println(STR."Suchtiefe:\{max_plies}");
+    }
+
+    public static void resetCounters() {
+        max_plies = 0;
+        nodesVisited = 0;
+        positionsSearched = 0;
+        cutoffs = 0;
+        ttHits = 0;
     }
 }
