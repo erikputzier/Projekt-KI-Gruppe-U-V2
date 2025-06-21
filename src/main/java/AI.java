@@ -3,7 +3,6 @@ import java.util.List;
 
 public class AI {
     private static int max_plies = 64;   // depth guard
-    static long positionsSearched = 0;
     static long cutoffs = 0;
     static long ttHits = 0; // Counter for transposition table hits
     static double percent = 0.0;
@@ -30,6 +29,7 @@ public class AI {
         long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
         long branchLimit = (long) (timeLimit * 0.92 / legalMoves.size()); // war timeLimit * 0.92 / legalMoves.size()
         System.out.println("Time Limit: " + timeLimit);
+
         // Order moves to evaluate better moves first
         List<MovePair> orderedMoves = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer);
 
@@ -220,35 +220,42 @@ public class AI {
                 }
             }
         }
-        positionsSearched++;
-
         return bestScore;
     }
 
     public static void evaluate(int moveCounter, int legalMovesSize, long startTime) {
-        // This method can be used to trigger evaluation or analysis of the AI's performance
-        // For example, it could print statistics or reset counters
-        System.out.println("Evaluating AI performance:");
-        System.out.printf("Total positions searched: %d%n", positionsSearched);
-        System.out.printf("Total cutoffs: %d%n", cutoffs);
-        System.out.printf("Transposition Table hits: %d%n", ttHits); // Print TT hits
-        System.out.printf("Average alpha-beta cutoff ratio: %.1f%%%n", average);
-        //
-        percent += 100.0 * cutoffs / nodesVisited;
+
+        /* 1 — compute current ratio safely */
+        double thisRatio = nodesVisited == 0 ? 0.0 : 100.0 * cutoffs / nodesVisited;
+
+        /* 2 — update running average */
+        percent += thisRatio;
         runs++;
         average = percent / runs;
-        System.out.printf("Average alpha-beta cutoff ratio: %.1f%%%n", average);
-        System.out.printf("αβ-cut ratio: %.1f%%%n", 100.0 * cutoffs / nodesVisited);
-        System.out.println(STR."\{moveCounter} out of\{legalMovesSize} moves");
-        System.out.println(STR."Time: \{System.currentTimeMillis() - startTime}ms");
-        System.out.println(STR."Nodes Visited: \{nodesVisited}");
-        System.out.println(STR."Suchtiefe:\{max_plies}");
+
+        /* 3 — print everything once, after it is correct */
+        System.out.println("\nEvaluating AI performance:");
+        System.out.printf("Total cut-offs:               %d%n", cutoffs);
+        System.out.printf("Transposition-table hits:      %d%n", ttHits);
+        System.out.printf("αβ-cut ratio this search:      %.1f%%%n", thisRatio);
+        System.out.printf("αβ-cut ratio running average:  %.1f%%%n", average);
+
+        /* 4 — moves evaluated only in the last pass */
+        int movesLastPass = moveCounter % legalMovesSize;
+        System.out.printf("Moves searched in last pass:   %d / %d%n", movesLastPass == 0 ? legalMovesSize : movesLastPass, legalMovesSize);
+
+        /* 5 — real search depth reached (last completed ply) */
+        int reachedDepth = max_plies > 0 ? max_plies - 1 : 0;
+        System.out.printf("Depth reached:                 %d plies%n", reachedDepth);
+
+        System.out.printf("Time for pickMove():           %d ms%n", System.currentTimeMillis() - startTime);
+        System.out.printf("Total nodes visited:           %d%n", nodesVisited);
     }
 
+
     public static void resetCounters() {
-        max_plies = 0;
+        max_plies = 1;
         nodesVisited = 0;
-        positionsSearched = 0;
         cutoffs = 0;
         ttHits = 0;
     }
