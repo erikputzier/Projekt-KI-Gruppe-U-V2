@@ -21,12 +21,10 @@ public class MoveGeneratorTest {
         char toColChar = moveStr.charAt(3);
         int toRowNum = Character.getNumericValue(moveStr.charAt(4));
         int height = Character.getNumericValue(moveStr.charAt(6));
-
         int fromCol = fromColChar - 'A';
         int fromRow = 7 - fromRowNum; // Zeile 1 → Index 6, Zeile 7 → Index 0
         int toCol = toColChar - 'A';
         int toRow = 7 - toRowNum;
-
         return new Move(fromRow, fromCol, toRow, toCol, height);
     }
 
