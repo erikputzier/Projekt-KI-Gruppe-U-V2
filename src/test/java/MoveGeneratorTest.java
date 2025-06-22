@@ -91,7 +91,71 @@ public class MoveGeneratorTest {
             generatedMoves.add(pair.toMove());
         }
         List<String> actualMoves = List.of("D1-C1-1", "D1-D2-1", "D1-E1-1", "E3-D3-1", "E3-E4-1", "E3-F3-1", "F1-E1-1", "F1-F2-1", "F1-G1-1", "G3-G2-1", "G3-F3-1", "G3-G4-1");
-        board.printBoard();
+        List<Move> actual = parseMoves(actualMoves);
+        assertTrue(generatedMoves.containsAll(actual) && actual.containsAll(generatedMoves));
+    }
+
+    @Test
+    public void moveGeneratorTest6() {
+        Board board = new Board("7/1b44b3/7/2BG4/3r13/2r1RG3/7 r");
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
+        List<Move> generatedMoves = new ArrayList<>();
+        for (MovePair pair : movePairs) {
+            generatedMoves.add(pair.toMove());
+        }
+        List<String> actualMoves = List.of("D3-D4-1", "D3-C3-1", "D3-E3-1", "C2-C3-1", "C2-B2-1", "C2-C1-1", "D2-E2-1", "D2-D1-1");
+        List<Move> actual = parseMoves(actualMoves);
+        assertTrue(generatedMoves.containsAll(actual) && actual.containsAll(generatedMoves));
+    }
+
+    @Test
+    public void moveGeneratorTest7() {
+        Board board = new Board("3RG1r21/7/3r22r3/7/3b53/7/1b21BG3 b");
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
+        List<Move> generatedMoves = new ArrayList<>();
+        for (MovePair pair : movePairs) {
+            generatedMoves.add(pair.toMove());
+        }
+        List<String> actualMoves = List.of("B1-A1-1", "B1-C1-1", "B1-B2-1", "B1-B3-2", "D1-D2-1", "D1-C1-1", "D1-E1-1", "D3-C3-1", "D3-E3-1", "D3-D4-1", "D3-D2-1", "D3-B3-2", "D3-F3-2", "D3-A3-3", "D3-G3-3", "D3-D5-2");
+        List<Move> actual = parseMoves(actualMoves);
+        assertTrue(generatedMoves.containsAll(actual) && actual.containsAll(generatedMoves));
+    }
+
+    @Test
+    public void moveGeneratorTest8() {
+        Board board = new Board("3RG1r21/7/3r53/7/3b53/7/1b21BG3 r");
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
+        List<Move> generatedMoves = new ArrayList<>();
+        for (MovePair pair : movePairs) {
+            generatedMoves.add(pair.toMove());
+        }
+        List<String> actualMoves = List.of("D7-C7-1", "D7-E7-1", "D7-D6-1", "F7-E7-1", "F7-G7-1", "F7-F6-1", "F7-F5-2", "D5-C5-1", "D5-E5-1", "D5-D6-1", "D5-D4-1", "D5-B5-2", "D5-F5-2", "D5-A5-3", "D5-G5-3");
+        List<Move> actual = parseMoves(actualMoves);
+        assertTrue(generatedMoves.containsAll(actual) && actual.containsAll(generatedMoves));
+    }
+
+    @Test
+    public void moveGeneratorTest9() {
+        Board board = new Board("7/3RG3/7/3r23/7/3BG3/7 r");
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
+        List<Move> generatedMoves = new ArrayList<>();
+        for (MovePair pair : movePairs) {
+            generatedMoves.add(pair.toMove());
+        }
+        List<String> actualMoves = List.of("D6-D5-1", "D6-D7-1", "D6-C6-1", "D6-E6-1", "D4-D3-1", "D4-D2-2", "D4-D5-1", "D4-C4-1", "D4-B4-2", "D4-E4-1", "D4-F4-2");
+        List<Move> actual = parseMoves(actualMoves);
+        assertTrue(generatedMoves.containsAll(actual) && actual.containsAll(generatedMoves));
+    }
+
+    @Test
+    public void moveGeneratorTest10() {
+        Board board = new Board("r1r11RG3/6r1/3r11r21/7/3b23/1b15/b12BG1b1b1 b");
+        List<MovePair> movePairs = MoveGenerator.generateAllLegalMoves(board);
+        List<Move> generatedMoves = new ArrayList<>();
+        for (MovePair pair : movePairs) {
+            generatedMoves.add(pair.toMove());
+        }
+        List<String> actualMoves = List.of("A1-A2-1", "A1-B1-1", "B2-B1-1", "B2-C2-1", "B2-A2-1", "B2-B3-1", "D1-C1-1", "D1-D2-1", "D1-E1-1", "F1-E1-1", "F1-F2-1", "F1-G1-1", "G1-G2-1", "G1-F1-1", "D3-D2-1", "D3-C3-1", "D3-D4-1", "D3-E3-1", "D3-D5-2", "D3-F3-2", "D3-B3-2");
         List<Move> actual = parseMoves(actualMoves);
         assertTrue(generatedMoves.containsAll(actual) && actual.containsAll(generatedMoves));
     }
