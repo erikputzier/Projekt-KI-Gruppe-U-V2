@@ -11,7 +11,7 @@ public class AI {
     static List<Integer> searchDepths = new ArrayList<>();
     static double average;
 
-    private static final TranspositionTable transpositionTable = new TranspositionTable();
+    private static final TranspositionTableArray transpositionTable = new TranspositionTableArray();
 
     public static MovePair pickMove(Board board) {
         // Reset counters for each move selection
@@ -74,17 +74,17 @@ public class AI {
         nodesVisited++;
         /* ---------- Zobrist Hashing and Transposition Table Lookup ------------- */
         long zobristHash = ZobristHashing.computeHash(board);
-        TranspositionTable.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
+        TranspositionTableArray.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
         int originalAlpha = alpha; // Store original alpha for TT storing
         int originalBeta = beta;   // Store original beta for TT storing
 
         if (ttEntry != null && ttEntry.depth >= (max_plies - ply)) { // Compare with remaining depth
             ttHits++;
-            if (ttEntry.entryType == TranspositionTable.EXACT_SCORE) {
+            if (ttEntry.type == TranspositionTable.EXACT_SCORE) {
                 return ttEntry.score;
-            } else if (ttEntry.entryType == TranspositionTable.LOWER_BOUND) {
+            } else if (ttEntry.type == TranspositionTable.LOWER_BOUND) {
                 alpha = Math.max(alpha, ttEntry.score);
-            } else if (ttEntry.entryType == TranspositionTable.UPPER_BOUND) {
+            } else if (ttEntry.type == TranspositionTable.UPPER_BOUND) {
                 beta = Math.min(beta, ttEntry.score);
             }
             if (alpha >= beta) {
@@ -112,9 +112,9 @@ public class AI {
         /* ---------- order moves to improve alpha-beta efficiency --------------- */
         List<MovePair> orderedMoves = MoveOrdering.orderMoves(moves, board, maximizingPlayer);
         // If a best move was found in TT, try it first
-        if (ttEntry != null && ttEntry.bestMove != null) {
-            orderedMoves.remove(ttEntry.bestMove); // Remove if present to avoid duplicate
-            orderedMoves.add(0, ttEntry.bestMove); // Add to the front
+        if (ttEntry != null && ttEntry.best != null) {
+            orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
+            orderedMoves.add(0, ttEntry.best); // Add to the front
         }
 
 
@@ -164,7 +164,7 @@ public class AI {
         } else { // Exact score
             entryType = TranspositionTable.EXACT_SCORE;
         }
-        transpositionTable.store(zobristHash, bestScore, (max_plies - ply), entryType, bestMoveForTT);
+        transpositionTable.store(zobristHash, bestScore, (short) (max_plies - ply), (byte) entryType, bestMoveForTT);
         return bestScore;
     }
 
@@ -247,6 +247,9 @@ public class AI {
         /* 5 — real search depth reached (last completed ply) */
         int reachedDepth = max_plies > 0 ? max_plies - 1 : 0;
         System.out.printf("Depth reached:                 %d plies%n", reachedDepth);
+
+        double ttFillRate = (transpositionTable.size() / (double) TranspositionTableArray.TABLE_SIZE) * 100;
+        System.out.printf("TT fill rate:                  %.2f%%%n", ttFillRate);
 
         System.out.printf("Time for pickMove():           %d ms%n", System.currentTimeMillis() - startTime);
         System.out.printf("Total nodes visited:           %d%n", nodesVisited);

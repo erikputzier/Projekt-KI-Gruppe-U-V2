@@ -4,14 +4,14 @@ import java.util.Map;
 
 public class TranspositionTableArray {
     /** Table size (power of two!) – e.g. 16 MiB = 2 000 000 entries. */
-    private static final int TABLE_SIZE   = 1 << 22;
+    public static final int TABLE_SIZE   = 1 << 22;
     private static final int INDEX_MASK   = TABLE_SIZE - 1;
     // Entry types for transposition table
     public static final int EXACT_SCORE = 0;
     public static final int LOWER_BOUND = 1;
     public static final int UPPER_BOUND = 2;
     private final TTEntry[] table = new TTEntry[TABLE_SIZE];
-    static final class TTEntry {
+    public static final class TTEntry {
         long  zobrist;          // 8 bytes  – full verification key
         int   score;            // 4
         short depth;            // 2
