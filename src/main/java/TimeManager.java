@@ -15,10 +15,10 @@ public class TimeManager {
         double timeFactor = Math.min(4, 1.0 + weightedScore);  // max 4x Zeit
 
         // Alle Faktoren ausgeben lassen um Bewertung zu überprüfen
-        System.out.println("Mobility Score: " + mobilityScore);
-        System.out.println("Instability Score: " + instabilityScore);
-        System.out.println("Pressure Score: " + pressureScore);
-        System.out.println("Tension Score: " + tensionScore);
+        //System.out.println("Mobility Score: " + mobilityScore);
+        //System.out.println("Instability Score: " + instabilityScore);
+        //System.out.println("Pressure Score: " + pressureScore);
+        //System.out.println("Tension Score: " + tensionScore);
 
         return (long) (baseTimeMs * timeFactor);
     }
