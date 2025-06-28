@@ -17,7 +17,7 @@ public final class Eval {
      *    minor factors never override winning / losing a guard, while
      *    still letting them break ties when material is equal.
      */
-    private static final int WIN_LOSS_WEIGHT = 100_000;   // decisive
+    /*private static final int WIN_LOSS_WEIGHT = 100_000;   // decisive
     private static final int MATERIAL_PER_PIECE = 100;     // base material
     private static final int TOWER_EXTRA_PER_LEVEL = 15;     // high stacks better
     private static final int CENTER_CONTROL_BONUS = 12;     // positional
@@ -26,7 +26,18 @@ public final class Eval {
     private static final int MOBILITY_PER_MOVE = 2;     // small, tie‑breaker
     private static final int BLOCKED_TOWER_PENALTY = -10;     // discourages self‑jams
     private static final int GUARD_SAFETY_PER_FRIEND = 5;     // shield (was 25)
-    private static final int GUARD_THREAT_PER_ENEMY = -30;     // danger!
+    private static final int GUARD_THREAT_PER_ENEMY = -30;*/     // danger!
+
+    private static final int WIN_LOSS_WEIGHT= 105522;
+    private static final int MATERIAL_PER_PIECE= 83;
+    private static final int TOWER_EXTRA_PER_LEVEL= 24;
+    private static final int CENTER_CONTROL_BONUS= 16;
+    private static final int FILE_ALIGNED_GUARD_BONUS= 20;
+    private static final int GUARD_PROGRESS_BONUS= 25;
+    private static final int MOBILITY_PER_MOVE= 1;
+    private static final int BLOCKED_TOWER_PENALTY= -5;
+    private static final int GUARD_SAFETY_PER_FRIEND= 8;
+    private static final int GUARD_THREAT_PER_ENEMY= -32;
 
     /*
      * Main entry – returns (score for RED – score for BLUE).
@@ -72,14 +83,14 @@ public final class Eval {
         //System.out.println("Mobility per move: " + score);
 
         /* 8️⃣ Blocked towers – small penalty per own tower with no moves. */
-        //score += countBlockedTowers(board, side) * BLOCKED_TOWER_PENALTY;
+        score += countBlockedTowers(board, side) * BLOCKED_TOWER_PENALTY;
         //System.out.println("Blocked Tower penalty: " + score);
 
         /* 9️⃣ Guard safety / threat within 2 squares. */
-        //score += friendsNearGuard(board, side) * GUARD_SAFETY_PER_FRIEND;
+        score += friendsNearGuard(board, side) * GUARD_SAFETY_PER_FRIEND;
         //System.out.println("Friends near Guard: " + score);
 
-        //score += enemiesNearOurGuard(board, side) * GUARD_THREAT_PER_ENEMY;
+        score += enemiesNearOurGuard(board, side) * GUARD_THREAT_PER_ENEMY;
         //System.out.println("Guard Threat per enemy: " + score);
 
         return score;
