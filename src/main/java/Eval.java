@@ -17,27 +17,18 @@ public final class Eval {
      *    minor factors never override winning / losing a guard, while
      *    still letting them break ties when material is equal.
      */
-    /*private static final int WIN_LOSS_WEIGHT = 100_000;   // decisive
-    private static final int MATERIAL_PER_PIECE = 100;     // base material
-    private static final int TOWER_EXTRA_PER_LEVEL = 15;     // high stacks better
-    private static final int CENTER_CONTROL_BONUS = 12;     // positional
-    private static final int FILE_ALIGNED_GUARD_BONUS = 10;     // rook‑like pressure
-    private static final int GUARD_PROGRESS_BONUS = 20;     // end‑game racing
-    private static final int MOBILITY_PER_MOVE = 2;     // small, tie‑breaker
-    private static final int BLOCKED_TOWER_PENALTY = -10;     // discourages self‑jams
-    private static final int GUARD_SAFETY_PER_FRIEND = 5;     // shield (was 25)
-    private static final int GUARD_THREAT_PER_ENEMY = -30;*/     // danger!
 
-    private static final int WIN_LOSS_WEIGHT= 105522;
-    private static final int MATERIAL_PER_PIECE= 83;
-    private static final int TOWER_EXTRA_PER_LEVEL= 24;
-    private static final int CENTER_CONTROL_BONUS= 16;
-    private static final int FILE_ALIGNED_GUARD_BONUS= 20;
-    private static final int GUARD_PROGRESS_BONUS= 25;
-    private static final int MOBILITY_PER_MOVE= 1;
-    private static final int BLOCKED_TOWER_PENALTY= -5;
-    private static final int GUARD_SAFETY_PER_FRIEND= 8;
-    private static final int GUARD_THREAT_PER_ENEMY= -32;
+
+    private static final int WIN_LOSS_WEIGHT = 45252;
+    private static final int MATERIAL_PER_PIECE = 477;
+    private static final int TOWER_EXTRA_PER_LEVEL = 27;
+    private static final int CENTER_CONTROL_BONUS = 3;
+    private static final int FILE_ALIGNED_GUARD_BONUS = 26;
+    private static final int GUARD_PROGRESS_BONUS = 92;
+    private static final int MOBILITY_PER_MOVE = 13;
+    private static final int BLOCKED_TOWER_PENALTY = -21;
+    private static final int GUARD_SAFETY_PER_FRIEND = 15;
+    private static final int GUARD_THREAT_PER_ENEMY = -21;
 
     /*
      * Main entry – returns (score for RED – score for BLUE).
@@ -98,12 +89,12 @@ public final class Eval {
 
     /* ---------------- helper methods below – deliberately compact ---------------- */
 
-    private static Player opposite(Player p) {
+    public static Player opposite(Player p) {
         return (p == Player.RED) ? Player.BLUE : Player.RED;
     }
 
     // counts extra levels above 1 for all towers of this side.
-    private static int totalExtraTowerLevels(Board b, Player side) {
+    public static int totalExtraTowerLevels(Board b, Player side) {
         int extra = 0;
         long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
         for (int h = 1; h < 7; h++) {
@@ -115,14 +106,14 @@ public final class Eval {
 
     private static final int[] CENTER_SQUARES = {15, 16, 17, 22, 23, 24, 29, 30, 31}; // 7×7 index
 
-    private static int countInCenter(Board b, Player side) {
+    public static int countInCenter(Board b, Player side) {
         long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
         int cnt = 0;
         for (int idx : CENTER_SQUARES) if (((mask >> idx) & 1L) != 0) cnt++;
         return cnt;
     }
 
-    private static int alignedWithEnemyGuard(Board b, Player side) {
+    public static int alignedWithEnemyGuard(Board b, Player side) {
         long myTowers = (side == Player.RED) ? b.getRed() : b.getBlue();
         long enemyGuard = b.getGuards() & ((side == Player.RED) ? b.getBlue() : b.getRed());
         if (enemyGuard == 0) return 0; // guard already captured – handled earlier
@@ -150,7 +141,7 @@ public final class Eval {
         return Math.abs(r - tr) + Math.abs(c - tc);
     }
 
-    private static int countBlockedTowers(Board b, Player side) {
+    public static int countBlockedTowers(Board b, Player side) {
         int blocked = 0;
         List<MovePair> moves = MoveGenerator.generateAllLegalMoves(b);
         long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
@@ -166,7 +157,7 @@ public final class Eval {
         return blocked;
     }
 
-    private static int friendsNearGuard(Board b, Player side) {
+    public static int friendsNearGuard(Board b, Player side) {
         long guard = b.getGuards() & ((side == Player.RED) ? b.getRed() : b.getBlue());
         if (guard == 0) return 0;
         int g = Long.numberOfTrailingZeros(guard);
@@ -181,7 +172,7 @@ public final class Eval {
         return cnt;
     }
 
-    private static int enemiesNearOurGuard(Board b, Player side) {
+    public static int enemiesNearOurGuard(Board b, Player side) {
         long guard = b.getGuards() & ((side == Player.RED) ? b.getRed() : b.getBlue());
         if (guard == 0) return 0;
         int g = Long.numberOfTrailingZeros(guard);
