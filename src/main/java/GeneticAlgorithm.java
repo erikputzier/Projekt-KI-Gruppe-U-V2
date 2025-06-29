@@ -1,6 +1,4 @@
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * Genetic Algorithm implementation for optimizing evaluation function weights
@@ -15,49 +13,36 @@ public class GeneticAlgorithm {
     private static final double CROSSOVER_RATE = 0.7;
     private static final int ELITISM_COUNT = 2;
     private static final int MAX_GENERATIONS = 30;
-    private static final int GAMES_PER_EVALUATION = 5;
-    private static final int MOVE_LIMIT = 70;
-    private static final long GAME_TIME_LIMIT_MS = 50000; // 5 seconds per game
+    private static final int GAMES_PER_EVALUATION = 10;
+    private static final int MOVE_LIMIT = 150;
+    private static final long GAME_TIME_LIMIT_MS = 50000;
 
     // Weight ranges for mutation and initialization
-    private static final int[] MIN_WEIGHTS = {
-        90000,  // WIN_LOSS_WEIGHT
-        50,     // MATERIAL_PER_PIECE
-        5,      // TOWER_EXTRA_PER_LEVEL
-        5,      // CENTER_CONTROL_BONUS
-        5,      // FILE_ALIGNED_GUARD_BONUS
-        10,     // GUARD_PROGRESS_BONUS
-        1,      // MOBILITY_PER_MOVE
-        -20,    // BLOCKED_TOWER_PENALTY
-        1,      // GUARD_SAFETY_PER_FRIEND
-        -50     // GUARD_THREAT_PER_ENEMY
+    private static final int[] MIN_WEIGHTS = {10000,  // WIN_LOSS_WEIGHT
+            10,     // MATERIAL_PER_PIECE
+            3,      // TOWER_EXTRA_PER_LEVEL
+            3,      // CENTER_CONTROL_BONUS
+            3,      // FILE_ALIGNED_GUARD_BONUS
+            5,     // GUARD_PROGRESS_BONUS
+            1,      // MOBILITY_PER_MOVE
+            -40,    // BLOCKED_TOWER_PENALTY
+            1,      // GUARD_SAFETY_PER_FRIEND
+            -100     // GUARD_THREAT_PER_ENEMY
     };
 
-    private static final int[] MAX_WEIGHTS = {
-        110000, // WIN_LOSS_WEIGHT
-        150,    // MATERIAL_PER_PIECE
-        30,     // TOWER_EXTRA_PER_LEVEL
-        25,     // CENTER_CONTROL_BONUS
-        20,     // FILE_ALIGNED_GUARD_BONUS
-        40,     // GUARD_PROGRESS_BONUS
-        5,      // MOBILITY_PER_MOVE
-        -5,     // BLOCKED_TOWER_PENALTY
-        15,     // GUARD_SAFETY_PER_FRIEND
-        -10     // GUARD_THREAT_PER_ENEMY
+    private static final int[] MAX_WEIGHTS = {200000, // WIN_LOSS_WEIGHT
+            500,    // MATERIAL_PER_PIECE
+            90,     // TOWER_EXTRA_PER_LEVEL
+            85,     // CENTER_CONTROL_BONUS
+            80,     // FILE_ALIGNED_GUARD_BONUS
+            100,     // GUARD_PROGRESS_BONUS
+            20,      // MOBILITY_PER_MOVE
+            -2,     // BLOCKED_TOWER_PENALTY
+            50,     // GUARD_SAFETY_PER_FRIEND
+            -2     // GUARD_THREAT_PER_ENEMY
     };
 
-    private static final String[] WEIGHT_NAMES = {
-        "WIN_LOSS_WEIGHT",
-        "MATERIAL_PER_PIECE",
-        "TOWER_EXTRA_PER_LEVEL",
-        "CENTER_CONTROL_BONUS",
-        "FILE_ALIGNED_GUARD_BONUS",
-        "GUARD_PROGRESS_BONUS",
-        "MOBILITY_PER_MOVE",
-        "BLOCKED_TOWER_PENALTY",
-        "GUARD_SAFETY_PER_FRIEND",
-        "GUARD_THREAT_PER_ENEMY"
-    };
+    private static final String[] WEIGHT_NAMES = {"WIN_LOSS_WEIGHT", "MATERIAL_PER_PIECE", "TOWER_EXTRA_PER_LEVEL", "CENTER_CONTROL_BONUS", "FILE_ALIGNED_GUARD_BONUS", "GUARD_PROGRESS_BONUS", "MOBILITY_PER_MOVE", "BLOCKED_TOWER_PENALTY", "GUARD_SAFETY_PER_FRIEND", "GUARD_THREAT_PER_ENEMY"};
 
     protected List<Individual> population;
     protected Random random;
@@ -122,17 +107,16 @@ public class GeneticAlgorithm {
         this.bestIndividual = population.get(0); // Initialize with first individual
 
         // Initialize reference AI with hand-tuned weights
-        int[] currentWeights = {
-            100000, // WIN_LOSS_WEIGHT
-            100,    // MATERIAL_PER_PIECE
-            15,     // TOWER_EXTRA_PER_LEVEL
-            12,     // CENTER_CONTROL_BONUS
-            10,     // FILE_ALIGNED_GUARD_BONUS
-            20,     // GUARD_PROGRESS_BONUS
-            2,      // MOBILITY_PER_MOVE
-            -10,    // BLOCKED_TOWER_PENALTY
-            5,      // GUARD_SAFETY_PER_FRIEND
-            -30     // GUARD_THREAT_PER_ENEMY
+        int[] currentWeights = {100000, // WIN_LOSS_WEIGHT
+                100,    // MATERIAL_PER_PIECE
+                15,     // TOWER_EXTRA_PER_LEVEL
+                12,     // CENTER_CONTROL_BONUS
+                10,     // FILE_ALIGNED_GUARD_BONUS
+                20,     // GUARD_PROGRESS_BONUS
+                2,      // MOBILITY_PER_MOVE
+                -10,    // BLOCKED_TOWER_PENALTY
+                5,      // GUARD_SAFETY_PER_FRIEND
+                -30     // GUARD_THREAT_PER_ENEMY
         };
         this.referenceAI = new CustomAI(currentWeights);
     }
@@ -147,17 +131,16 @@ public class GeneticAlgorithm {
         this.bestIndividual = population.get(0); // Initialize with first individual
 
         // Initialize reference AI with hand-tuned weights
-        int[] currentWeights = {
-            100000, // WIN_LOSS_WEIGHT
-            100,    // MATERIAL_PER_PIECE
-            15,     // TOWER_EXTRA_PER_LEVEL
-            12,     // CENTER_CONTROL_BONUS
-            10,     // FILE_ALIGNED_GUARD_BONUS
-            20,     // GUARD_PROGRESS_BONUS
-            2,      // MOBILITY_PER_MOVE
-            -10,    // BLOCKED_TOWER_PENALTY
-            5,      // GUARD_SAFETY_PER_FRIEND
-            -30     // GUARD_THREAT_PER_ENEMY
+        int[] currentWeights = {100000, // WIN_LOSS_WEIGHT
+                100,    // MATERIAL_PER_PIECE
+                15,     // TOWER_EXTRA_PER_LEVEL
+                12,     // CENTER_CONTROL_BONUS
+                10,     // FILE_ALIGNED_GUARD_BONUS
+                20,     // GUARD_PROGRESS_BONUS
+                2,      // MOBILITY_PER_MOVE
+                -10,    // BLOCKED_TOWER_PENALTY
+                5,      // GUARD_SAFETY_PER_FRIEND
+                -30     // GUARD_THREAT_PER_ENEMY
         };
         this.referenceAI = new CustomAI(currentWeights);
     }
@@ -167,17 +150,16 @@ public class GeneticAlgorithm {
      */
     private void initializePopulation() {
         // Add current weights as one individual
-        int[] currentWeights = {
-            100000, // WIN_LOSS_WEIGHT
-            100,    // MATERIAL_PER_PIECE
-            15,     // TOWER_EXTRA_PER_LEVEL
-            12,     // CENTER_CONTROL_BONUS
-            10,     // FILE_ALIGNED_GUARD_BONUS
-            20,     // GUARD_PROGRESS_BONUS
-            2,      // MOBILITY_PER_MOVE
-            -10,    // BLOCKED_TOWER_PENALTY
-            5,      // GUARD_SAFETY_PER_FRIEND
-            -30     // GUARD_THREAT_PER_ENEMY
+        int[] currentWeights = {100000, // WIN_LOSS_WEIGHT
+                100,    // MATERIAL_PER_PIECE
+                15,     // TOWER_EXTRA_PER_LEVEL
+                12,     // CENTER_CONTROL_BONUS
+                10,     // FILE_ALIGNED_GUARD_BONUS
+                20,     // GUARD_PROGRESS_BONUS
+                2,      // MOBILITY_PER_MOVE
+                -10,    // BLOCKED_TOWER_PENALTY
+                5,      // GUARD_SAFETY_PER_FRIEND
+                -30     // GUARD_THREAT_PER_ENEMY
         };
         population.add(new Individual(currentWeights));
 
@@ -193,6 +175,7 @@ public class GeneticAlgorithm {
 
     /**
      * Run the genetic algorithm for a specified number of generations.
+     *
      * @return The best individual found.
      */
     public Individual evolve() {
@@ -237,6 +220,7 @@ public class GeneticAlgorithm {
     /**
      * Evaluate the fitness of an individual by playing games against a fixed reference AI.
      * This provides a stable baseline for fitness evaluation, preventing drift and cycles.
+     *
      * @param individual The individual to evaluate.
      */
     private void evaluateFitness(Individual individual) {
@@ -253,8 +237,7 @@ public class GeneticAlgorithm {
             int moveCount = 0;
             long startTime = System.currentTimeMillis();
 
-            while (moveCount < MOVE_LIMIT && 
-                   (System.currentTimeMillis() - startTime) < GAME_TIME_LIMIT_MS) {
+            while (moveCount < MOVE_LIMIT && (System.currentTimeMillis() - startTime) < GAME_TIME_LIMIT_MS) {
 
                 MovePair move;
                 if (board.getCurrentPlayer() == Player.RED) {
@@ -276,8 +259,7 @@ public class GeneticAlgorithm {
             }
 
             // If no winner after move limit, determine result based on evaluation
-            if (moveCount >= MOVE_LIMIT || 
-                (System.currentTimeMillis() - startTime) >= GAME_TIME_LIMIT_MS) {
+            if (moveCount >= MOVE_LIMIT || (System.currentTimeMillis() - startTime) >= GAME_TIME_LIMIT_MS) {
                 // Use individual's weights for evaluation
                 int evaluation = evaluateWithWeights(board, individual.getWeights());
                 if (evaluation > 0) {
@@ -294,8 +276,7 @@ public class GeneticAlgorithm {
             moveCount = 0;
             startTime = System.currentTimeMillis();
 
-            while (moveCount < MOVE_LIMIT && 
-                   (System.currentTimeMillis() - startTime) < GAME_TIME_LIMIT_MS) {
+            while (moveCount < MOVE_LIMIT && (System.currentTimeMillis() - startTime) < GAME_TIME_LIMIT_MS) {
 
                 MovePair move;
                 if (board.getCurrentPlayer() == Player.RED) {
@@ -317,8 +298,7 @@ public class GeneticAlgorithm {
             }
 
             // If no winner after move limit, determine result based on evaluation
-            if (moveCount >= MOVE_LIMIT || 
-                (System.currentTimeMillis() - startTime) >= GAME_TIME_LIMIT_MS) {
+            if (moveCount >= MOVE_LIMIT || (System.currentTimeMillis() - startTime) >= GAME_TIME_LIMIT_MS) {
                 // Use individual's weights for evaluation
                 int evaluation = evaluateWithWeights(board, individual.getWeights());
                 if (evaluation > 0) {
@@ -339,7 +319,8 @@ public class GeneticAlgorithm {
      * Play a game between two individuals with custom evaluation weights using full AI search.
      * Note: This method is no longer used in the current implementation, which uses a fixed
      * reference AI for fitness evaluation. It's kept for reference purposes.
-     * @param redPlayer Individual playing as RED
+     *
+     * @param redPlayer  Individual playing as RED
      * @param bluePlayer Individual playing as BLUE
      * @return The result of the game from redPlayer's perspective
      */
@@ -355,8 +336,7 @@ public class GeneticAlgorithm {
         int moveCount = 0;
         long startTime = System.currentTimeMillis();
 
-        while (moveCount < MOVE_LIMIT && 
-               (System.currentTimeMillis() - startTime) < GAME_TIME_LIMIT_MS) {
+        while (moveCount < MOVE_LIMIT && (System.currentTimeMillis() - startTime) < GAME_TIME_LIMIT_MS) {
 
             // Get the best move using the appropriate AI
             MovePair move;
@@ -379,9 +359,7 @@ public class GeneticAlgorithm {
         }
 
         // If no winner after move limit, determine winner based on evaluation using the current player's weights
-        int[] myWeights = (board.getCurrentPlayer()==Player.RED)
-            ? redPlayer.getWeights()
-            : bluePlayer.getWeights();
+        int[] myWeights = (board.getCurrentPlayer() == Player.RED) ? redPlayer.getWeights() : bluePlayer.getWeights();
         int evaluation = evaluateWithWeights(board, myWeights);
         if (evaluation > 0) {
             return GameResult.WIN;
@@ -397,7 +375,6 @@ public class GeneticAlgorithm {
      */
     private class CustomAI {
         private int[] weights;
-        private static final int SEARCH_TIME_MS = 500; // Time limit for search
 
         public CustomAI(int[] weights) {
             this.weights = weights;
@@ -405,106 +382,21 @@ public class GeneticAlgorithm {
 
         /**
          * Get the best move for the current board position using minimax search.
+         *
          * @param board The current board position
          * @return The best move
          */
         public MovePair getBestMove(Board board) {
-            List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
-
-            // If only one legal move, return it
-            if (legalMoves.size() == 1) {
-                return legalMoves.get(0);
-            }
-
-            boolean maximizingPlayer = board.getCurrentPlayer() == Player.RED;
-            MovePair bestMove = null;
-            int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-
-            // Start time for search
-            long startTime = System.currentTimeMillis();
-
-            // Evaluate each move with minimax search
-            for (MovePair move : legalMoves) {
-                Board newBoard = Board.makeMove(move, board.copy());
-                int eval = minimaxAlphaBeta(newBoard, 2, Integer.MIN_VALUE, Integer.MAX_VALUE, 
-                                           !maximizingPlayer, startTime, SEARCH_TIME_MS);
-
-                if (maximizingPlayer && eval > bestValue) {
-                    bestValue = eval;
-                    bestMove = move;
-                } else if (!maximizingPlayer && eval < bestValue) {
-                    bestValue = eval;
-                    bestMove = move;
-                }
-
-                // Check if time is up
-                if (System.currentTimeMillis() - startTime > SEARCH_TIME_MS) {
-                    break;
-                }
-            }
-
-            return bestMove;
-        }
-
-        /**
-         * Minimax algorithm with alpha-beta pruning and custom weights.
-         * @param board The current board position
-         * @param depth The current depth
-         * @param alpha Alpha value for pruning
-         * @param beta Beta value for pruning
-         * @param maximizingPlayer Whether the current player is maximizing
-         * @param startTime Start time of the search
-         * @param timeLimit Time limit for the search
-         * @return The evaluation score
-         */
-        private int minimaxAlphaBeta(Board board, int depth, int alpha, int beta, 
-                                    boolean maximizingPlayer, long startTime, long timeLimit) {
-            // Check for terminal conditions
-            if (depth == 0 || Board.checkplayerWon(board, Player.RED) || 
-                Board.checkplayerWon(board, Player.BLUE) || 
-                System.currentTimeMillis() - startTime > timeLimit) {
-                return evaluateWithWeights(board, weights);
-            }
-
-            List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
-
-            if (legalMoves.isEmpty()) {
-                return evaluateWithWeights(board, weights);
-            }
-
-            if (maximizingPlayer) {
-                int maxEval = Integer.MIN_VALUE;
-                for (MovePair move : legalMoves) {
-                    Board newBoard = Board.makeMove(move, board.copy());
-                    int eval = minimaxAlphaBeta(newBoard, depth - 1, alpha, beta, 
-                                              false, startTime, timeLimit);
-                    maxEval = Math.max(maxEval, eval);
-                    alpha = Math.max(alpha, eval);
-                    if (beta <= alpha) {
-                        break;
-                    }
-                }
-                return maxEval;
-            } else {
-                int minEval = Integer.MAX_VALUE;
-                for (MovePair move : legalMoves) {
-                    Board newBoard = Board.makeMove(move, board.copy());
-                    int eval = minimaxAlphaBeta(newBoard, depth - 1, alpha, beta, 
-                                              true, startTime, timeLimit);
-                    minEval = Math.min(minEval, eval);
-                    beta = Math.min(beta, eval);
-                    if (beta <= alpha) {
-                        break;
-                    }
-                }
-                return minEval;
-            }
+            // Use GeneticAlgorithm's getBestMove method which uses custom weights
+            return GeneticAlgorithm.this.getBestMove(board, weights);
         }
     }
 
     /**
      * Get the best move for the current board position using custom weights.
-     * @param board The current board position
+     * This is a simplified version of AI.pickMove that uses custom weights.
+     *
+     * @param board   The current board position
      * @param weights The weights to use for evaluation
      * @return The best move
      */
@@ -539,7 +431,8 @@ public class GeneticAlgorithm {
 
     /**
      * Evaluate a board position using custom weights.
-     * @param board The board to evaluate
+     *
+     * @param board   The board to evaluate
      * @param weights The weights to use
      * @return The evaluation score
      */
@@ -551,8 +444,9 @@ public class GeneticAlgorithm {
 
     /**
      * Evaluate a side using custom weights.
-     * @param board The board to evaluate
-     * @param side The side to evaluate
+     *
+     * @param board   The board to evaluate
+     * @param side    The side to evaluate
      * @param weights The weights to use
      * @return The evaluation score for the side
      */
@@ -561,138 +455,42 @@ public class GeneticAlgorithm {
 
         // Win/Loss detection
         if (Board.checkplayerWon(board, side)) return weights[0]; // WIN_LOSS_WEIGHT
-        if (Board.checkplayerWon(board, side == Player.RED ? Player.BLUE : Player.RED)) return -weights[0];
+        if (Board.checkplayerWon(board, Eval.opposite(side))) return -weights[0];
 
         // Material
         int pieces = board.numPieces(side);
         score += pieces * weights[1]; // MATERIAL_PER_PIECE
 
         // Tower height
-        score += totalExtraTowerLevels(board, side) * weights[2]; // TOWER_EXTRA_PER_LEVEL
+        score += Eval.totalExtraTowerLevels(board, side) * weights[2]; // TOWER_EXTRA_PER_LEVEL
 
         // Center control
-        score += countInCenter(board, side) * weights[3]; // CENTER_CONTROL_BONUS
+        score += Eval.countInCenter(board, side) * weights[3]; // CENTER_CONTROL_BONUS
 
         // Aligned attack
-        score += alignedWithEnemyGuard(board, side) * weights[4]; // FILE_ALIGNED_GUARD_BONUS
+        score += Eval.alignedWithEnemyGuard(board, side) * weights[4]; // FILE_ALIGNED_GUARD_BONUS
 
         // Guard progress
-        score += (12 - guardDistanceToTarget(board, side)) * weights[5]; // GUARD_PROGRESS_BONUS
+        score += (12 - Eval.guardDistanceToTarget(board, side)) * weights[5]; // GUARD_PROGRESS_BONUS
 
         // Mobility (if enabled)
         // score += MoveGenerator.generateAllLegalMoves(board).size() * weights[6]; // MOBILITY_PER_MOVE
 
         // Blocked towers
-        score += countBlockedTowers(board, side) * weights[7]; // BLOCKED_TOWER_PENALTY
+        score += Eval.countBlockedTowers(board, side) * weights[7]; // BLOCKED_TOWER_PENALTY
 
         // Guard safety
-        score += friendsNearGuard(board, side) * weights[8]; // GUARD_SAFETY_PER_FRIEND
+        score += Eval.friendsNearGuard(board, side) * weights[8]; // GUARD_SAFETY_PER_FRIEND
 
         // Guard threat
-        score += enemiesNearGuard(board, side) * weights[9]; // GUARD_THREAT_PER_ENEMY
+        score += Eval.enemiesNearOurGuard(board, side) * weights[9]; // GUARD_THREAT_PER_ENEMY
 
         return score;
     }
 
-    // Helper methods copied from Eval class
-    private Player opposite(Player p) {
-        return (p == Player.RED) ? Player.BLUE : Player.RED;
-    }
-
-    private int totalExtraTowerLevels(Board b, Player side) {
-        int extra = 0;
-        long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
-        for (int h = 1; h < 7; h++) {
-            long bits = b.getStack(h) & mask;
-            extra += Long.bitCount(bits);
-        }
-        return extra;
-    }
-
-    private static final int[] CENTER_SQUARES = {15, 16, 17, 22, 23, 24, 29, 30, 31}; // 7×7 index
-
-    private int countInCenter(Board b, Player side) {
-        long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
-        int cnt = 0;
-        for (int idx : CENTER_SQUARES) if (((mask >> idx) & 1L) != 0) cnt++;
-        return cnt;
-    }
-
-    private int alignedWithEnemyGuard(Board b, Player side) {
-        long myTowers = (side == Player.RED) ? b.getRed() : b.getBlue();
-        long enemyGuard = b.getGuards() & ((side == Player.RED) ? b.getBlue() : b.getRed());
-        if (enemyGuard == 0) return 0;
-        int guardIdx = Long.numberOfTrailingZeros(enemyGuard);
-        int gRow = guardIdx / 7, gCol = guardIdx % 7;
-        int aligned = 0;
-        for (int idx = 0; idx < 49; idx++)
-            if (((myTowers >> idx) & 1L) != 0) {
-                int r = idx / 7, c = idx % 7;
-                if (r == gRow || c == gCol) aligned++;
-            }
-        return aligned;
-    }
-
-    private static final int[] CASTLE_INDEX = {3, 45}; // Red target, Blue target
-
-    private int guardDistanceToTarget(Board b, Player side) {
-        long guard = b.getGuards() & ((side == Player.RED) ? b.getRed() : b.getBlue());
-        if (guard == 0) return 12; // MAX_DISTANCE
-        int idx = Long.numberOfTrailingZeros(guard);
-        int r = idx / 7, c = idx % 7;
-        int targetIdx = (side == Player.RED) ? CASTLE_INDEX[0] : CASTLE_INDEX[1];
-        int tr = targetIdx / 7, tc = targetIdx % 7;
-        return Math.abs(r - tr) + Math.abs(c - tc);
-    }
-
-    private int countBlockedTowers(Board b, Player side) {
-        int blocked = 0;
-        List<MovePair> moves = MoveGenerator.generateAllLegalMoves(b);
-        long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
-        boolean[] hasMove = new boolean[49];
-        for (MovePair m : moves) {
-            int from = m.from();
-            hasMove[from] = true;
-        }
-        for (int idx = 0; idx < 49; idx++)
-            if (((mask >> idx) & 1L) != 0) {
-                if (!hasMove[idx]) blocked++;
-            }
-        return blocked;
-    }
-
-    private int friendsNearGuard(Board b, Player side) {
-        long guard = b.getGuards() & ((side == Player.RED) ? b.getRed() : b.getBlue());
-        if (guard == 0) return 0;
-        int g = Long.numberOfTrailingZeros(guard);
-        int gr = g / 7, gc = g % 7;
-        long mask = (side == Player.RED) ? b.getRed() : b.getBlue();
-        int cnt = 0;
-        for (int idx = 0; idx < 49; idx++)
-            if (((mask >> idx) & 1L) != 0 && idx != g) {
-                int r = idx / 7, c = idx % 7;
-                if (Math.abs(r - gr) + Math.abs(c - gc) <= 2) cnt++;
-            }
-        return cnt;
-    }
-
-    private int enemiesNearGuard(Board b, Player side) {
-        long guard = b.getGuards() & ((side == Player.RED) ? b.getRed() : b.getBlue());
-        if (guard == 0) return 0;
-        int g = Long.numberOfTrailingZeros(guard);
-        int gr = g / 7, gc = g % 7;
-        long mask = (side == Player.RED) ? b.getBlue() : b.getRed();
-        int cnt = 0;
-        for (int idx = 0; idx < 49; idx++)
-            if (((mask >> idx) & 1L) != 0) {
-                int r = idx / 7, c = idx % 7;
-                if (Math.abs(r - gr) + Math.abs(c - gc) <= 2) cnt++;
-            }
-        return cnt;
-    }
-
     /**
      * Tournament selection to choose a parent.
+     *
      * @return The selected individual
      */
     private Individual tournamentSelection() {
@@ -702,13 +500,12 @@ public class GeneticAlgorithm {
             tournament.add(population.get(randomIndex));
         }
 
-        return tournament.stream()
-            .max(Comparator.comparingInt(Individual::getFitness))
-            .orElse(population.get(0));
+        return tournament.stream().max(Comparator.comparingInt(Individual::getFitness)).orElse(population.get(0));
     }
 
     /**
      * Perform crossover between two parents to create two offspring.
+     *
      * @param parent1 First parent
      * @param parent2 Second parent
      * @return Array of two offspring
@@ -738,6 +535,7 @@ public class GeneticAlgorithm {
      * Mutate an individual by adding small Gaussian noise to some of its weights.
      * This uses perturbative mutation which preserves prior tuning by nudging
      * the genome instead of randomizing it.
+     *
      * @param individual The individual to mutate
      */
     private void mutate(Individual individual) {
@@ -751,36 +549,33 @@ public class GeneticAlgorithm {
 
                 // Apply Gaussian noise to the existing weight
                 double delta = random.nextGaussian() * sigma;
-                int mutated = (int)Math.round(individual.weights[i] + delta);
+                int mutated = (int) Math.round(individual.weights[i] + delta);
 
                 // Clamp the result to ensure it stays within the allowed range
-                individual.weights[i] = Math.max(MIN_WEIGHTS[i], 
-                                        Math.min(MAX_WEIGHTS[i], mutated));
+                individual.weights[i] = Math.max(MIN_WEIGHTS[i], Math.min(MAX_WEIGHTS[i], mutated));
             }
         }
     }
 
     /**
      * Find the best individual in the current population.
+     *
      * @return The best individual
      */
     protected Individual findBestIndividual() {
-        return population.stream()
-            .max(Comparator.comparingInt(Individual::getFitness))
-            .orElse(population.get(0));
+        return population.stream().max(Comparator.comparingInt(Individual::getFitness)).orElse(population.get(0));
     }
 
     /**
      * Create a new population through selection, crossover, and mutation.
+     *
      * @return The new population
      */
     protected List<Individual> createNewPopulation() {
         List<Individual> newPopulation = new ArrayList<>();
 
         // Elitism - add best individuals directly to new population
-        List<Individual> sortedPopulation = population.stream()
-            .sorted(Comparator.comparingInt(Individual::getFitness).reversed())
-            .collect(Collectors.toList());
+        List<Individual> sortedPopulation = population.stream().sorted(Comparator.comparingInt(Individual::getFitness).reversed()).toList();
 
         for (int i = 0; i < ELITISM_COUNT; i++) {
             newPopulation.add(sortedPopulation.get(i));
@@ -797,10 +592,7 @@ public class GeneticAlgorithm {
             if (random.nextDouble() < CROSSOVER_RATE) {
                 offspring = crossover(parent1, parent2);
             } else {
-                offspring = new Individual[] { 
-                    new Individual(parent1.getWeights()),
-                    new Individual(parent2.getWeights())
-                };
+                offspring = new Individual[]{new Individual(parent1.getWeights()), new Individual(parent2.getWeights())};
             }
 
             // Mutation
@@ -819,6 +611,7 @@ public class GeneticAlgorithm {
 
     /**
      * Get the best individual found during evolution.
+     *
      * @return The best individual
      */
     public Individual getBestIndividual() {

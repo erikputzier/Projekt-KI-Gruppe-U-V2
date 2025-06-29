@@ -1,29 +1,30 @@
 /**
  * Example demonstrating how to use the GeneticAlgorithm class to optimize
  * evaluation weights for the Guard & Towers game.
- * 
- * The GeneticAlgorithm class implements a genetic algorithm to find optimal weights 
+ * <p>
+ * The GeneticAlgorithm class implements a genetic algorithm to find optimal weights
  * for the evaluation function. It works by:
- * 
+ * <p>
  * 1. Creating a population of individuals, each with a different set of weights
  * 2. Evaluating each individual by playing games against other individuals
  * 3. Selecting the best individuals to create a new generation through crossover and mutation
  * 4. Repeating the process for multiple generations to find the best set of weights
- * 
+ * <p>
  * This example demonstrates the basic usage of the GeneticAlgorithm class, as well as
  * how to customize it for specific needs.
  */
+
 public class GeneticAlgorithmExample {
 
     /**
      * Main method demonstrating how to use the GeneticAlgorithm class.
-     * 
+     * <p>
      * The process involves:
      * 1. Creating a GeneticAlgorithm instance
      * 2. Running the evolution process
      * 3. Getting the best individual (solution)
      * 4. Using the optimized weights in your application
-     * 
+     *
      * @param args Command line arguments (not used)
      */
     public static void main(String[] args) {
@@ -68,7 +69,13 @@ public class GeneticAlgorithmExample {
         System.out.println("private static final int WIN_LOSS_WEIGHT = " + optimizedWeights[0] + ";");
         System.out.println("private static final int MATERIAL_PER_PIECE = " + optimizedWeights[1] + ";");
         System.out.println("private static final int TOWER_EXTRA_PER_LEVEL = " + optimizedWeights[2] + ";");
-        System.out.println("// ... and so on for the remaining weights");
+        System.out.println("private static final int CENTER_CONTROL_BONUS = " + optimizedWeights[3] + ";");
+        System.out.println("private static final int FILE_ALIGNED_GUARD_BONUS = " + optimizedWeights[4] + ";");
+        System.out.println("private static final int GUARD_PROGRESS_BONUS = " + optimizedWeights[5] + ";");
+        System.out.println("private static final int MOBILITY_PER_MOVE = " + optimizedWeights[6] + ";");
+        System.out.println("private static final int BLOCKED_TOWER_PENALTY = " + optimizedWeights[7] + ";");
+        System.out.println("private static final int GUARD_SAFETY_PER_FRIEND = " + optimizedWeights[8] + ";");
+        System.out.println("private static final int GUARD_THREAT_PER_ENEMY = " + optimizedWeights[9] + ";");
 
         // Note: The weights correspond to the following parameters in order:
         // 1. WIN_LOSS_WEIGHT - Weight for winning/losing the game
@@ -86,7 +93,7 @@ public class GeneticAlgorithmExample {
     /**
      * Alternative example showing how to create a custom genetic algorithm
      * by extending the GeneticAlgorithm class.
-     * 
+     * <p>
      * This demonstrates how to customize the genetic algorithm for specific needs,
      * such as running fewer generations or modifying the evolution process.
      */
@@ -109,7 +116,7 @@ public class GeneticAlgorithmExample {
     /**
      * Example of a custom genetic algorithm implementation with
      * modified parameters or behavior.
-     * 
+     * <p>
      * This class demonstrates how to extend the GeneticAlgorithm class
      * to customize its behavior. You can override methods like:
      * - evolve() - to change the evolution process
@@ -137,7 +144,7 @@ public class GeneticAlgorithmExample {
          * Override the evolve method to customize the evolution process.
          * In this example, we run fewer generations (5 instead of 20)
          * for a quicker result.
-         * 
+         *
          * @return The best individual found during evolution
          */
         @Override
@@ -178,7 +185,7 @@ public class GeneticAlgorithmExample {
         /**
          * You can override other methods as needed to customize the genetic algorithm.
          * For example, you could override the mutate method to change how mutation works:
-         * 
+         *
          * @Override
          * protected void mutate(Individual individual) {
          *     // Custom mutation implementation
