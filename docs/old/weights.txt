@@ -1,0 +1,22 @@
+private static final int WIN_LOSS_WEIGHT = 100_000;   // decisive
+    private static final int MATERIAL_PER_PIECE = 100;     // base material
+    private static final int TOWER_EXTRA_PER_LEVEL = 15;     // high stacks better
+    private static final int CENTER_CONTROL_BONUS = 12;     // positional
+    private static final int FILE_ALIGNED_GUARD_BONUS = 10;     // rook‑like pressure
+    private static final int GUARD_PROGRESS_BONUS = 20;     // end‑game racing
+    private static final int MOBILITY_PER_MOVE = 2;     // small, tie‑breaker
+    private static final int BLOCKED_TOWER_PENALTY = -10;     // discourages self‑jams
+    private static final int GUARD_SAFETY_PER_FRIEND = 5;     // shield (was 25)
+    private static final int GUARD_THREAT_PER_ENEMY = -30;     // danger!
+
+
+private static final int WIN_LOSS_WEIGHT= 105522;
+private static final int MATERIAL_PER_PIECE= 83;
+private static final int TOWER_EXTRA_PER_LEVEL= 24;
+private static final int CENTER_CONTROL_BONUS= 16;
+private static final int FILE_ALIGNED_GUARD_BONUS= 20;
+private static final int GUARD_PROGRESS_BONUS= 25;
+private static final int MOBILITY_PER_MOVE= 1;
+private static final int BLOCKED_TOWER_PENALTY= -5;
+private static final int GUARD_SAFETY_PER_FRIEND= 8;
+private static final int GUARD_THREAT_PER_ENEMY= -32;
