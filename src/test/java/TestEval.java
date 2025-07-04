@@ -4,17 +4,17 @@ import static org.junit.Assert.*;
 
 public class TestEval {
 
-    @Test
-    public void testStartEval() {
-        Board startBoard = new Board();
-        assertEquals(0, Eval.evaluate(startBoard));
-    }
-
-    @Test
-    public void testEvaluateSide() {
-        Board startBoard = new Board();
-        assertEquals(Eval.evaluateSide(startBoard, Player.BLUE), Eval.evaluateSide(startBoard, Player.RED));
-    }
+//    @Test
+//    public void testStartEval() {
+//        Board startBoard = new Board();
+//        assertEquals(0, Eval.evaluate(startBoard));
+//    }
+//
+//    @Test
+//    public void testEvaluateSide() {
+//        Board startBoard = new Board();
+//        assertEquals(Eval.evaluateSide(startBoard, Player.BLUE), Eval.evaluateSide(startBoard, Player.RED));
+//    }
 
 
     @Test

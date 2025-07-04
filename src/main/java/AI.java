@@ -106,7 +106,7 @@ public class AI {
 
         /* ---------- hard stops: out of time OR too deep ------------------------ */
         if (System.currentTimeMillis() - startTime > timeLimitMs || ply >= max_plies) {
-            return Eval.evaluate(board);
+            return quiesce(board, alpha, beta, maximizingPlayer);
         }
 
         /* ---------- game-ending positions -------------------------------------- */
@@ -180,8 +180,37 @@ public class AI {
         } else { // Exact score
             entryType = TranspositionTable.EXACT_SCORE;
         }
-        transpositionTable.store(zobristHash, bestScore, (short) (max_plies - ply), (byte) entryType, bestMoveForTT);
+
+        short effectiveDepth = (short) (max_plies - ply);
+        if (ply >= max_plies)   // quiescence node
+            effectiveDepth = 0;
+
+        // Store the best move for this position in the TT
+        transpositionTable.store(zobristHash, bestScore, effectiveDepth, (byte) entryType, bestMoveForTT);
         return bestScore;
+    }
+
+    private static int quiesce(Board node, int alpha, int beta, boolean maximizing) {
+        int standPat = Eval.evaluate(node);
+        if (maximizing) {
+            if (standPat >= beta) return standPat;
+            alpha = Math.max(alpha, standPat);
+        } else {
+            if (standPat <= alpha) return standPat;
+            beta = Math.min(beta, standPat);
+        }
+
+        for (MovePair m : MoveGenerator.generateNoisyMoves(node)) {
+            Board child = Board.makeMove(m, node.copy());
+            int score = quiesce(child, alpha, beta, !maximizing);
+            if (maximizing) {
+                if (score > alpha) alpha = score;
+            } else {
+                if (score < beta) beta = score;
+            }
+            if (alpha >= beta) break;      // cutoff
+        }
+        return maximizing ? alpha : beta;
     }
 
     public static void evaluate(int moveCounter, int legalMovesSize, long startTime) {
