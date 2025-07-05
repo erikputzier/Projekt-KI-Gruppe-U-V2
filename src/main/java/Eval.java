@@ -39,6 +39,14 @@ public final class Eval {
         return red - blue;
     }
 
+    public static int naiveEvaluate(Board b) {
+        int red = naiveEvaluateSide(b, Player.RED);
+        int blue = naiveEvaluateSide(b, Player.BLUE);
+        return red - blue;
+    }
+
+
+
     /*
      * Per‑side breakdown so that features stay readable.
      */
@@ -83,6 +91,20 @@ public final class Eval {
 
         score += enemiesNearOurGuard(board, side) * GUARD_THREAT_PER_ENEMY;
         //System.out.println("Guard Threat per enemy: " + score);
+
+        return score;
+    }
+
+    public static int naiveEvaluateSide(Board board, Player side){
+        int score = 0;
+
+        /* 1️⃣ Win/Loss detection – overrides everything else. */
+        if (Board.checkplayerWon(board, side)) return WIN_LOSS_WEIGHT;
+        if (Board.checkplayerWon(board, opposite(side))) return -WIN_LOSS_WEIGHT;
+
+        /* 2️⃣ Material – each piece is worth 100 points. */
+        int pieces = board.numPieces(side);
+        score += pieces * MATERIAL_PER_PIECE;   // Simple but stable.
 
         return score;
     }

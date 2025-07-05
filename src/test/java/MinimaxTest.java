@@ -2,6 +2,8 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertTrue;
+
 public class MinimaxTest {
 
     @Test
@@ -38,10 +40,9 @@ public class MinimaxTest {
     @Test
     public void testA1(){
         Board board = new Board("7/6r3/1RG5/3b43/1r25/7/2BG3r1 r");
-        AI.max_plies = 1;
+        AI.resetCounters();
         AI.minimaxAlphaBeta(board, 1000);
         System.out.println(AI.nodesVisited);
-        AI.max_plies = 64;
     }
 
 
@@ -56,7 +57,7 @@ public class MinimaxTest {
     }
     @Test
     public void testTranspositionTableUsage() {
-        Board board = TestBoards.createSymmetricPosition();
+        Board board = new Board();
         AI.resetCounters();
 
         AI.minimaxAlphaBeta(board, 1000); // erster Durchlauf füllt TT
@@ -65,7 +66,7 @@ public class MinimaxTest {
         AI.minimaxAlphaBeta(board, 1000); // zweiter Durchlauf sollte TT nutzen
         long secondTTHits = AI.ttHits;
 
-        assertTrue(secondTTHits > firstTTHits, "Expected more TT hits in second run");
+        assertTrue("Expected more TT hits in second run", secondTTHits > firstTTHits);
     }
 
 

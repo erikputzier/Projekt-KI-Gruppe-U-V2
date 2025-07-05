@@ -1,3 +1,4 @@
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,8 @@ public class AI {
     static double percent = 0.0;
     static int runs = 0;
     static int nodesVisited = 0;
+    static int reSearches = 0;
+    static int basicSearches = 1;
     static List<Integer> searchDepths = new ArrayList<>();
     static double average;
 
@@ -69,10 +72,76 @@ public class AI {
         return bestMove;
     }
 
+    public static MovePair pickMovePVS(Board board) {
+        // Reset counters for each move selection
+        resetCounters();
+
+        // Reset killer moves for a new search
+        MoveOrdering.resetKillerMoves();
+
+        List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
+        boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
+        MovePair bestMove = null;
+        int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        // start global timer only ONCE
+        long startTime = System.currentTimeMillis();
+        int moveCounter = 0;
+        long baseTimeLimit = 3000;
+        long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
+        long branchLimit = (long) (timeLimit * 1.1 / legalMoves.size());
+        System.out.println("Time Limit: " + timeLimit);
+
+        /* ---------- order moves to improve alpha-beta efficiency --------------- */
+        List<MovePair> orderedMoves = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, 0);
+
+        // Check if there's a best move in the transposition table
+        long zobristHash = ZobristHashing.computeHash(board);
+        TranspositionTableArray.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
+
+        // If a best move was found in TT, try it first
+        if (ttEntry != null && ttEntry.best != null) {
+            orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
+            orderedMoves.add(0, ttEntry.best); // Add to the front
+        }
+
+        while ((System.currentTimeMillis() - startTime) < timeLimit) {
+            for (MovePair move : orderedMoves) {
+                Board newBoard = Board.makeMove(move, board.copy());
+
+                int eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit);
+
+                if (maximizingPlayer && eval > bestValue) {
+                    bestValue = eval;
+                    bestMove = move;
+                } else if (!maximizingPlayer && eval < bestValue) {
+                    bestValue = eval;
+                    bestMove = move;
+                }
+                moveCounter++;
+                // stop looping if we ran out of time
+                //if (System.currentTimeMillis() - startTime > timeLimit) break;
+            }
+            max_plies++;
+        }
+        evaluate(moveCounter, legalMoves.size(), startTime);
+        return bestMove;
+    }
+
     public static int minimaxAlphaBeta(Board root, long timeLimitMs) {              // convenience
         boolean rootIsMax = (root.getCurrentPlayer() == Player.RED);
         long start = System.currentTimeMillis();
         return minimaxAlphaBeta(root,                     /* board     */
+                rootIsMax,                                /* max player*/
+                Integer.MIN_VALUE, Integer.MAX_VALUE,     /* α, β      */
+                start, timeLimitMs,                       /* timing    */
+                0);                                       /* ply = 0   */
+    }
+
+    public static int minimaxAlphaBetaPVS(Board root, long timeLimitMs) {              // convenience
+        boolean rootIsMax = (root.getCurrentPlayer() == Player.RED);
+        long start = System.currentTimeMillis();
+        return minimaxAlphaBetaPVS(root,                     /* board     */
                 rootIsMax,                                /* max player*/
                 Integer.MIN_VALUE, Integer.MAX_VALUE,     /* α, β      */
                 start, timeLimitMs,                       /* timing    */
@@ -237,19 +306,19 @@ public class AI {
 
         /* ---------- hard stops: out of time OR too deep ------------------------ */
         if (System.currentTimeMillis() - startTime > timeLimitMs || ply >= max_plies) {
-            return Eval.evaluate(board); // hier könnte man ruhesuche einbauen
+            return quiesce(board, alpha, beta, maximizingPlayer);
         }
 
         /* ---------- game-ending positions -------------------------------------- */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
         if (Board.checkplayerWon(board, prev)) {         // last mover just won
-            return Eval.evaluate(board);
+            return Eval.naiveEvaluate(board);
         }
 
         /* ---------- enumerate legal moves -------------------------------------- */
         List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
         if (moves.isEmpty()) {                            // stalemate or no moves
-            return Eval.evaluate(board);
+            return Eval.naiveEvaluate(board);
         }
 
         /* ---------- order moves to improve alpha-beta efficiency --------------- */
@@ -268,14 +337,26 @@ public class AI {
             bestScore = Integer.MIN_VALUE;
 
             //Besten Move mit Vollem Alpha Beta Fenster durchsuchen
-            assert ttEntry != null;
             Board child = Board.makeMove(orderedMoves.getFirst(), board.copy());
             orderedMoves.removeFirst();
-            int score = minimaxAlphaBetaPVS(child, )
+            bestScore = minimaxAlphaBetaPVS(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
+            basicSearches++;
 
             for (MovePair m : orderedMoves) {
                 child = Board.makeMove(m, board.copy());           // safe copy
-                score = minimaxAlphaBeta(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
+                //alle anderen Moves mti Null Window durchsuchen
+                int score = minimaxAlphaBeta(child, false, alpha, alpha+1, startTime, timeLimitMs, ply + 1);
+                basicSearches++;
+                //re-search falls score im Fenster liegt
+                if(score > alpha && score < beta){
+                    //re-search mit Fenster [alpha;beta]
+                    reSearches++;
+                    score = minimaxAlphaBetaPVS(child, false, alpha, beta, startTime, timeLimitMs, ply + 1);
+                    if(score > alpha){
+                        alpha = score;
+                    }
+                }
+
                 if (score > bestScore) {
                     bestScore = score;
                     bestMoveForTT = m;
@@ -290,9 +371,28 @@ public class AI {
             }
         } else { // minimizing player
             bestScore = Integer.MAX_VALUE;
+
+            //Besten Move mit Vollem Alpha Beta Fenster durchsuchen
+            Board child = Board.makeMove(orderedMoves.getFirst(), board.copy());
+            orderedMoves.removeFirst();
+            bestScore = minimaxAlphaBetaPVS(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
+            basicSearches++;
+
             for (MovePair m : orderedMoves) {
-                Board child = Board.makeMove(m, board.copy());
-                int score = minimaxAlphaBeta(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
+                child = Board.makeMove(m, board.copy());
+                int score = minimaxAlphaBeta(child, true, beta-1, beta, startTime, timeLimitMs, ply + 1);
+                basicSearches++;
+
+                //re-search falls score im Fenster liegt
+                if(score > alpha && score < beta){
+                    //re-search mit Fenster [alpha;beta]
+                    reSearches++;
+                    score = minimaxAlphaBetaPVS(child, true, alpha, beta, startTime, timeLimitMs, ply + 1);
+                    if(score < beta){
+                        beta = score;
+                    }
+                }
+
                 if (score < bestScore) {
                     bestScore = score;
                     bestMoveForTT = m;
@@ -333,7 +433,7 @@ public class AI {
 
         /* 3 — print everything once, after it is correct */
         System.out.println("\nEvaluating AI performance:");
-        System.out.printf("Total cut-offs:               %d%n", cutoffs);
+        System.out.printf("Total cut-offs:                %d%n", cutoffs);
         System.out.printf("Transposition-table hits:      %d%n", ttHits);
         System.out.printf("αβ-cut ratio this search:      %.1f%%%n", thisRatio);
         System.out.printf("αβ-cut ratio running average:  %.1f%%%n", average);
@@ -351,6 +451,9 @@ public class AI {
 
         System.out.printf("Time for pickMove():           %d ms%n", System.currentTimeMillis() - startTime);
         System.out.printf("Total nodes visited:           %d%n", nodesVisited);
+        System.out.printf("Number of re-searches:         %d%n", reSearches);
+        System.out.printf("Number of basicSearches:       %d%n", basicSearches);
+        System.out.printf("Pct re-searches:               %d%n", reSearches * 100 / basicSearches);
     }
 
 
@@ -359,5 +462,10 @@ public class AI {
         nodesVisited = 0;
         cutoffs = 0;
         ttHits = 0;
+        reSearches = 0;
+    }
+
+    public static void clearTT(){
+        transpositionTable.clear();
     }
 }
