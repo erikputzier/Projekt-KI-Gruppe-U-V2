@@ -187,4 +187,46 @@ public class MoveGenerator {
             }
         }
     }
+
+    public static List<MovePair> generateNoisyMoves(Board b) {
+        List<MovePair> all = MoveGenerator.generateAllLegalMoves(b);
+        List<MovePair> noisy = new ArrayList<>();
+        long guards = b.getGuards();
+        long enemy = (b.getCurrentPlayer() == Player.RED) ? b.getBlue() : b.getRed();
+
+        for (MovePair m : all) {
+            long dest = 1L << m.to();
+            if ((dest & guards) != 0) {               // guard capture
+                noisy.add(m);
+            } else if ((dest & enemy) != 0 && m.height() >= towerHeightAt(dest, b)) {
+                noisy.add(m);                         // tower capture
+            }
+        }
+        return noisy;
+    }
+
+    /**
+     * Returns the exact height (1-7) of the tower or guard that
+     * occupies the square represented by {@code bit}.  A guard
+     * counts as height 1.  If the square is empty the method
+     * returns 0, which is handy for sanity checks.
+     *
+     * @param bit   single-bit mask for the target square, e.g. (1L << idx)
+     * @param board current board
+     */
+    public static int towerHeightAt(long bit, Board board) {
+        // Fast bail-out: empty square → height 0
+        if ((board.getStack(0) & bit) == 0) return 0;
+
+    /*  Every stack layer i (0 = bottom) contains 1-bits for
+        *all* towers of height ≥ (i + 1).  So we scan from the
+        top layer down until we hit the first set bit – the
+        corresponding (index + 1) is the real height.                      */
+        for (int h = 6; h >= 1; h--) {
+            if ((board.getStack(h) & bit) != 0) {
+                return h + 1;          // first layer that still contains the bit
+            }
+        }
+        return 1;
+    }
 }
