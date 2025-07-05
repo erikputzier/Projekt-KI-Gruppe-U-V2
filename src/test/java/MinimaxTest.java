@@ -34,4 +34,43 @@ public class MinimaxTest {
         Board endgameBoard = new Board("b36/3b12r3/7/7/1r2RG4/2BG4/6r1 b");
         AI.pickMove(endgameBoard);
     }
+
+    @Test
+    public void testA1(){
+        Board board = new Board("7/6r3/1RG5/3b43/1r25/7/2BG3r1 r");
+        AI.max_plies = 1;
+        AI.minimaxAlphaBeta(board, 1000);
+        System.out.println(AI.nodesVisited);
+        AI.max_plies = 64;
+    }
+
+
+
+    @Test
+    public void testTerminalWinningPosition(){
+        //Board in dem Rot gewonnen hat aber blau am zug ist
+        Board board  = new Board("1RG5/7/7/7/7/7/7 b");
+
+        int eval = AI.minimaxAlphaBeta(board, 1000);
+        System.out.println(eval);
+    }
+    @Test
+    public void testTranspositionTableUsage() {
+        Board board = TestBoards.createSymmetricPosition();
+        AI.resetCounters();
+
+        AI.minimaxAlphaBeta(board, 1000); // erster Durchlauf füllt TT
+        long firstTTHits = AI.ttHits;
+
+        AI.minimaxAlphaBeta(board, 1000); // zweiter Durchlauf sollte TT nutzen
+        long secondTTHits = AI.ttHits;
+
+        assertTrue(secondTTHits > firstTTHits, "Expected more TT hits in second run");
+    }
+
+
+
+
+
+
 }
