@@ -32,7 +32,10 @@ public class MoveOrdering {
             // Check if this move is a killer move at the current ply
             if (isKillerMove(move, ply)) {
                 // Killer moves get a bonus score but still less than captures
-                score += 900000; // High value but less than a winning position
+                // For maximizing player, higher scores are better, so add the bonus
+                // For minimizing player, lower scores are better, so subtract the bonus
+                int killerBonus = 900000; // High value but less than a winning position
+                score += maximizingPlayer ? killerBonus : -killerBonus;
             }
 
             // Evaluate the position after the move
