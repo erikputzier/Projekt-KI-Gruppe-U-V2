@@ -1,4 +1,3 @@
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class AI {
         // If a best move was found in TT, try it first
         if (ttEntry != null && ttEntry.best != null) {
             orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
-            orderedMoves.add(0, ttEntry.best); // Add to the front
+            orderedMoves.addFirst(ttEntry.best); // Add to the front
         }
 
         while ((System.currentTimeMillis() - startTime) < timeLimit) {
@@ -102,7 +101,7 @@ public class AI {
         // If a best move was found in TT, try it first
         if (ttEntry != null && ttEntry.best != null) {
             orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
-            orderedMoves.add(0, ttEntry.best); // Add to the front
+            orderedMoves.addFirst(ttEntry.best); // Add to the front
         }
 
         while ((System.currentTimeMillis() - startTime) < timeLimit) {
@@ -195,7 +194,7 @@ public class AI {
         // If a best move was found in TT, try it first
         if (ttEntry != null && ttEntry.best != null) {
             orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
-            orderedMoves.add(0, ttEntry.best); // Add to the front
+            orderedMoves.addFirst(ttEntry.best); // Add to the front
         }
 
 
@@ -326,7 +325,7 @@ public class AI {
         // If a best move was found in TT, try it first
         if (ttEntry != null && ttEntry.best != null) {
             orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
-            orderedMoves.add(0, ttEntry.best);
+            orderedMoves.addFirst(ttEntry.best);
         }
 
         /* ---------- standard alpha–beta recursion ------------------------------ */

@@ -1,11 +1,41 @@
-public static void printBitboard(long bitboard) {
-    System.out.println("Bitboard-Darstellung:");
-    for (int y = 0; y < BOARD_SIZE; y++) {
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            int index = y * BOARD_SIZE + x;
-            boolean isSet = ((bitboard >> index) & 1L) != 0;
-            System.out.print(isSet ? "1 " : ". ");
+public void printBoard() {
+        System.out.println("Aktueller Spielstand:");
+
+        for (int i = 48; i >= 0; i--) {
+            String symbol = "__";
+            // Guard hat Vorrang
+            if (((guards >> i) & 1L) != 0) {
+                if (((blue >> i) & 1L) != 0) {
+                    symbol = "BG";
+                } else if (((red >> i) & 1L) != 0) {
+                    symbol = "RG";
+                }
+            }
+            // Sonst Red
+            else if (((red >> i) & 1L) != 0) {
+                int stackHeight = 0;
+                for (int h = 0; h < stacks.length; h++) {
+                    if (((stacks[h] >> i) & 1L) != 0) {
+                        stackHeight = h + 1;
+                    }
+                }
+                symbol = "R" + stackHeight;
+            }
+            // Sonst Blue
+            else if (((blue >> i) & 1L) != 0) {
+                int stackHeight = 0;
+                for (int h = 0; h < stacks.length; h++) {
+                    if (((stacks[h] >> i) & 1L) != 0) {
+                        stackHeight = h + 1;
+                    }
+                }
+                symbol = "B" + stackHeight;
+            }
+
+            // Ausgabeformat: Symbol + Höhe
+            System.out.printf("%s", symbol);
+            if (i % 7 == 0) {
+                System.out.println();
+            }
         }
-        System.out.println();
     }
-}

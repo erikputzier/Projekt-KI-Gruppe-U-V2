@@ -1,11 +1,9 @@
 import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
+
 import static org.junit.Assert.*;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -128,31 +126,29 @@ public class GeneticAlgorithmTest {
         GeneticAlgorithm ga = new GeneticAlgorithm(42);
 
         // Test with minimum weights
-        int[] minWeights = {
-            90000,  // WIN_LOSS_WEIGHT
-            50,     // MATERIAL_PER_PIECE
-            5,      // TOWER_EXTRA_PER_LEVEL
-            5,      // CENTER_CONTROL_BONUS
-            5,      // FILE_ALIGNED_GUARD_BONUS
-            10,     // GUARD_PROGRESS_BONUS
-            1,      // MOBILITY_PER_MOVE
-            -20,    // BLOCKED_TOWER_PENALTY
-            1,      // GUARD_SAFETY_PER_FRIEND
-            -50     // GUARD_THREAT_PER_ENEMY
+        int[] minWeights = {90000,  // WIN_LOSS_WEIGHT
+                50,     // MATERIAL_PER_PIECE
+                5,      // TOWER_EXTRA_PER_LEVEL
+                5,      // CENTER_CONTROL_BONUS
+                5,      // FILE_ALIGNED_GUARD_BONUS
+                10,     // GUARD_PROGRESS_BONUS
+                1,      // MOBILITY_PER_MOVE
+                -20,    // BLOCKED_TOWER_PENALTY
+                1,      // GUARD_SAFETY_PER_FRIEND
+                -50     // GUARD_THREAT_PER_ENEMY
         };
 
         // Test with maximum weights
-        int[] maxWeights = {
-            110000, // WIN_LOSS_WEIGHT
-            150,    // MATERIAL_PER_PIECE
-            30,     // TOWER_EXTRA_PER_LEVEL
-            25,     // CENTER_CONTROL_BONUS
-            20,     // FILE_ALIGNED_GUARD_BONUS
-            40,     // GUARD_PROGRESS_BONUS
-            5,      // MOBILITY_PER_MOVE
-            -5,     // BLOCKED_TOWER_PENALTY
-            15,     // GUARD_SAFETY_PER_FRIEND
-            -10     // GUARD_THREAT_PER_ENEMY
+        int[] maxWeights = {110000, // WIN_LOSS_WEIGHT
+                150,    // MATERIAL_PER_PIECE
+                30,     // TOWER_EXTRA_PER_LEVEL
+                25,     // CENTER_CONTROL_BONUS
+                20,     // FILE_ALIGNED_GUARD_BONUS
+                40,     // GUARD_PROGRESS_BONUS
+                5,      // MOBILITY_PER_MOVE
+                -5,     // BLOCKED_TOWER_PENALTY
+                15,     // GUARD_SAFETY_PER_FRIEND
+                -10     // GUARD_THREAT_PER_ENEMY
         };
 
         // Create individuals with min and max weights
@@ -160,10 +156,8 @@ public class GeneticAlgorithmTest {
         GeneticAlgorithm.Individual maxIndividual = new GeneticAlgorithm.Individual(maxWeights);
 
         // Verify that the individuals have the expected weights
-        assertTrue("Min individual should have min weights", 
-                   Arrays.equals(minWeights, minIndividual.getWeights()));
-        assertTrue("Max individual should have max weights", 
-                   Arrays.equals(maxWeights, maxIndividual.getWeights()));
+        assertArrayEquals("Min individual should have min weights", minWeights, minIndividual.getWeights());
+        assertArrayEquals("Max individual should have max weights", maxWeights, maxIndividual.getWeights());
 
         System.out.println("[DEBUG_LOG] Edge cases test completed");
     }

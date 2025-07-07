@@ -3,10 +3,6 @@
  */
 public record Move(int fromRow, int fromCol, int toRow, int toCol, int moveHeight) {
 
-    public boolean isSameSquare() {
-        return fromRow == toRow && fromCol == toCol;
-    }
-
     @Override
     public String toString() {
         return String.format("Move from (%d,%d) to (%d,%d) [%d piece%s]",

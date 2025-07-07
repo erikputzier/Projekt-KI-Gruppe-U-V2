@@ -1,7 +1,5 @@
 import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static org.junit.Assert.assertTrue;
 
 public class MinimaxTest {
@@ -38,7 +36,7 @@ public class MinimaxTest {
     }
 
     @Test
-    public void testA1(){
+    public void testA1() {
         Board board = new Board("7/6r3/1RG5/3b43/1r25/7/2BG3r1 r");
         AI.resetCounters();
         AI.minimaxAlphaBeta(board, 1000);
@@ -46,15 +44,15 @@ public class MinimaxTest {
     }
 
 
-
     @Test
-    public void testTerminalWinningPosition(){
+    public void testTerminalWinningPosition() {
         //Board in dem Rot gewonnen hat aber blau am zug ist
-        Board board  = new Board("1RG5/7/7/7/7/7/7 b");
+        Board board = new Board("1RG5/7/7/7/7/7/7 b");
 
         int eval = AI.minimaxAlphaBeta(board, 1000);
         System.out.println(eval);
     }
+
     @Test
     public void testTranspositionTableUsage() {
         Board board = new Board();
@@ -68,10 +66,4 @@ public class MinimaxTest {
 
         assertTrue("Expected more TT hits in second run", secondTTHits > firstTTHits);
     }
-
-
-
-
-
-
 }

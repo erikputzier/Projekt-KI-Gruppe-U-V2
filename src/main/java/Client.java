@@ -1,5 +1,4 @@
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -178,8 +177,6 @@ public class Client {
         String board;                // FEN + side-to-move
         String turn;                 // "r" / "b"
         boolean bothConnected;       // both players ready
-        @SerializedName("time")
-        long timeMs;                 // remaining time in ms (server’s clock)
         boolean end;                 // true when the game is finished
     }
 }

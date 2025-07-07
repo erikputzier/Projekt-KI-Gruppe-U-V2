@@ -177,49 +177,6 @@ public class Board {
         return result;
     }
 
-
-    public void printBoard() {
-        System.out.println("Aktueller Spielstand:");
-
-        for (int i = 48; i >= 0; i--) {
-            String symbol = "__";
-            // Guard hat Vorrang
-            if (((guards >> i) & 1L) != 0) {
-                if (((blue >> i) & 1L) != 0) {
-                    symbol = "BG";
-                } else if (((red >> i) & 1L) != 0) {
-                    symbol = "RG";
-                }
-            }
-            // Sonst Red
-            else if (((red >> i) & 1L) != 0) {
-                int stackHeight = 0;
-                for (int h = 0; h < stacks.length; h++) {
-                    if (((stacks[h] >> i) & 1L) != 0) {
-                        stackHeight = h + 1;
-                    }
-                }
-                symbol = "R" + stackHeight;
-            }
-            // Sonst Blue
-            else if (((blue >> i) & 1L) != 0) {
-                int stackHeight = 0;
-                for (int h = 0; h < stacks.length; h++) {
-                    if (((stacks[h] >> i) & 1L) != 0) {
-                        stackHeight = h + 1;
-                    }
-                }
-                symbol = "B" + stackHeight;
-            }
-
-            // Ausgabeformat: Symbol + Höhe
-            System.out.printf("%s", symbol);
-            if (i % 7 == 0) {
-                System.out.println();
-            }
-        }
-    }
-
     /**
      * @param player for which the number of pieces should be calculated
      * @return returns the number of pieces of the given player on the board

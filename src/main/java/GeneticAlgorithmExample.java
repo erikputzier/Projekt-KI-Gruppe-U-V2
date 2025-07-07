@@ -181,15 +181,5 @@ public class GeneticAlgorithmExample {
 
             return bestIndividual;
         }
-
-        /**
-         * You can override other methods as needed to customize the genetic algorithm.
-         * For example, you could override the mutate method to change how mutation works:
-         *
-         * @Override
-         * protected void mutate(Individual individual) {
-         *     // Custom mutation implementation
-         * }
-         */
     }
 }

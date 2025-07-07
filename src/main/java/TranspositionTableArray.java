@@ -1,21 +1,22 @@
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TranspositionTableArray {
-    /** Table size (power of two!) – e.g. 16 MiB = 2 000 000 entries. */
-    public static final int TABLE_SIZE   = 1 << 22;
-    private static final int INDEX_MASK   = TABLE_SIZE - 1;
+    /**
+     * Table size (power of two!) – e.g. 16 MiB = 2 000 000 entries.
+     */
+    public static final int TABLE_SIZE = 1 << 22;
+    private static final int INDEX_MASK = TABLE_SIZE - 1;
     // Entry types for transposition table
     public static final int EXACT_SCORE = 0;
     public static final int LOWER_BOUND = 1;
     public static final int UPPER_BOUND = 2;
     private final TTEntry[] table = new TTEntry[TABLE_SIZE];
+
     public static final class TTEntry {
-        long  zobrist;          // 8 bytes  – full verification key
-        int   score;            // 4
+        long zobrist;          // 8 bytes  – full verification key
+        int score;            // 4
         short depth;            // 2
-        byte  type;             // 1  (EXACT / LOWER / UPPER)
+        byte type;             // 1  (EXACT / LOWER / UPPER)
         MovePair best;          // 4…8  (reference)
 
         // immutable helper for an empty slot
@@ -25,11 +26,8 @@ public class TranspositionTableArray {
     private static int indexOf(long zobrist) {
         return (int) (zobrist & INDEX_MASK);   // low bits work fine – hash is random
     }
-    public void store(long key,
-                      int  score,
-                      short depth,
-                      byte type,
-                      MovePair best) {
+
+    public void store(long key, int score, short depth, byte type, MovePair best) {
 
         int idx = indexOf(key);
         TTEntry cur = table[idx];
@@ -37,10 +35,10 @@ public class TranspositionTableArray {
         if (cur == null || depth >= cur.depth) {   // keep deeper or empty
             TTEntry e = new TTEntry();
             e.zobrist = key;
-            e.score   = score;
-            e.depth   = depth;
-            e.type    = type;
-            e.best    = best;
+            e.score = score;
+            e.depth = depth;
+            e.type = type;
+            e.best = best;
             table[idx] = e;
         }
     }

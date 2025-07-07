@@ -79,7 +79,7 @@ public class MoveOrderingTest {
         assertFalse("Should have legal moves", legalMoves.isEmpty());
 
         // Select a move to be the killer move
-        MovePair killerMove = legalMoves.get(0);
+        MovePair killerMove = legalMoves.getFirst();
 
         // Update it as a killer move at ply 2
         int testPly = 2;
@@ -90,7 +90,7 @@ public class MoveOrderingTest {
         List<MovePair> orderedMoves = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, testPly);
 
         // The killer move should be ordered first
-        assertEquals("Killer move should be ordered first", killerMove, orderedMoves.get(0));
+        assertEquals("Killer move should be ordered first", killerMove, orderedMoves.getFirst());
 
         System.out.println("[DEBUG_LOG] Killer move ordering test passed successfully");
     }
@@ -173,7 +173,7 @@ public class MoveOrderingTest {
         assertFalse("Should have legal moves", legalMoves.isEmpty());
 
         // Select a move to be the killer move
-        MovePair killerMove = legalMoves.get(0);
+        MovePair killerMove = legalMoves.getFirst();
 
         // Update it as a killer move
         int testPly = 4;
@@ -184,7 +184,7 @@ public class MoveOrderingTest {
         List<MovePair> orderedMovesWithKiller = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, testPly);
 
         // The killer move should be ordered first
-        assertEquals("Killer move should be ordered first", killerMove, orderedMovesWithKiller.get(0));
+        assertEquals("Killer move should be ordered first", killerMove, orderedMovesWithKiller.getFirst());
 
         // Reset killer moves
         MoveOrdering.resetKillerMoves();
@@ -194,7 +194,7 @@ public class MoveOrderingTest {
 
         // Now the ordering should be based only on evaluation
         // We'll compare the first moves of both orderings
-        if (!orderedMovesAfterReset.get(0).equals(killerMove)) {
+        if (!orderedMovesAfterReset.getFirst().equals(killerMove)) {
             // If the first move is different, the killer move was successfully reset
             System.out.println("[DEBUG_LOG] Reset killer moves test passed successfully - first move changed");
         } else {
@@ -249,21 +249,21 @@ public class MoveOrderingTest {
             // After first update, move1 should be the first killer move
             boolean maximizingPlayer = board.getCurrentPlayer() == Player.RED;
             List<MovePair> orderedMoves1 = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, testPly);
-            assertEquals("First killer move should be ordered first", move1, orderedMoves1.get(0));
+            assertEquals("First killer move should be ordered first", move1, orderedMoves1.getFirst());
 
             // Update with second move
             MoveOrdering.updateKillerMove(move2, testPly);
 
             // After second update, move2 should be first, move1 should be second
             List<MovePair> orderedMoves2 = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, testPly);
-            assertEquals("Second killer move should be ordered first", move2, orderedMoves2.get(0));
+            assertEquals("Second killer move should be ordered first", move2, orderedMoves2.getFirst());
 
             // Update with third move
             MoveOrdering.updateKillerMove(move3, testPly);
 
             // After third update, move3 should be first, move2 should be second, move1 should be out
             List<MovePair> orderedMoves3 = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, testPly);
-            assertEquals("Third killer move should be ordered first", move3, orderedMoves3.get(0));
+            assertEquals("Third killer move should be ordered first", move3, orderedMoves3.getFirst());
 
             System.out.println("[DEBUG_LOG] Killer move update mechanism test passed successfully");
         } else {
@@ -298,10 +298,10 @@ public class MoveOrderingTest {
         List<MovePair> orderedMovesAtPly2 = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, ply2);
 
         // The killer move at ply1 should be ordered first at ply1
-        assertEquals("Killer move at ply1 should be ordered first at ply1", killerMove1, orderedMovesAtPly1.get(0));
+        assertEquals("Killer move at ply1 should be ordered first at ply1", killerMove1, orderedMovesAtPly1.getFirst());
 
         // The killer move at ply2 should be ordered first at ply2
-        assertEquals("Killer move at ply2 should be ordered first at ply2", killerMove2, orderedMovesAtPly2.get(0));
+        assertEquals("Killer move at ply2 should be ordered first at ply2", killerMove2, orderedMovesAtPly2.getFirst());
 
         System.out.println("[DEBUG_LOG] Killer moves at different plies test passed successfully");
     }

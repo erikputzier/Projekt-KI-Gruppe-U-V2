@@ -8,17 +8,20 @@ public class TTBenchmark {
     // --- Adapter-Interface für Polymorphie ---
     interface TT {
         void store(long key, int score, short depth, byte type, MovePair best);
+
         Object retrieve(long key);
     }
 
     // --- Adapter für die HashMap-basierte Implementierung ---
     static class HashMapTT implements TT {
         private final TranspositionTable tt = new TranspositionTable();
+
         @Override
         public void store(long key, int score, short depth, byte type, MovePair best) {
             // Die TranspositionTable verwendet int für Tiefe und Typ, daher gibt es eine implizite Umwandlung
             tt.store(key, score, depth, type, best);
         }
+
         @Override
         public Object retrieve(long key) {
             return tt.retrieve(key);
@@ -28,10 +31,12 @@ public class TTBenchmark {
     // --- Adapter für die Array-basierte Implementierung ---
     static class ArrayTT implements TT {
         private final TranspositionTableArray tt = new TranspositionTableArray();
+
         @Override
         public void store(long key, int score, short depth, byte type, MovePair best) {
             tt.store(key, score, depth, type, best);
         }
+
         @Override
         public Object retrieve(long key) {
             return tt.retrieve(key);
@@ -62,12 +67,12 @@ public class TTBenchmark {
         long[] keys = rnd.longs(PROBES).toArray();
 
         // Aufwärmen
-        for (long k : keys) tt.store(k, 0, (short)1, (byte) TranspositionTable.EXACT_SCORE, null);
+        for (long k : keys) tt.store(k, 0, (short) 1, (byte) TranspositionTable.EXACT_SCORE, null);
 
         long t0 = System.nanoTime();
         for (long k : keys) {
             tt.retrieve(k);
-            tt.store(k, 0, (short)1, (byte) TranspositionTable.EXACT_SCORE, null);
+            tt.store(k, 0, (short) 1, (byte) TranspositionTable.EXACT_SCORE, null);
         }
         long nano = System.nanoTime() - t0;
 

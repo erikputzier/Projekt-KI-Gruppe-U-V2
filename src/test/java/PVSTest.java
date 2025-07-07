@@ -1,7 +1,3 @@
-import static org.junit.Assert.*;
-
-import java.util.*;
-
 import org.junit.Test;
 
 public class PVSTest {
@@ -20,6 +16,6 @@ public class PVSTest {
 
         //Test PVS on Startposition
         startTime = System.currentTimeMillis();
-         MovePair bestMovePVS= AI.pickMovePVS(board);
+        MovePair bestMovePVS = AI.pickMovePVS(board);
     }
 }

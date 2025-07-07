@@ -54,7 +54,7 @@ public class GeneticAlgorithm {
      * and a fitness score.
      */
     public static class Individual {
-        private int[] weights;
+        private final int[] weights;
         private int fitness;
 
         public Individual(int[] weights) {
@@ -104,7 +104,7 @@ public class GeneticAlgorithm {
         this.random = new Random();
         this.population = new ArrayList<>();
         initializePopulation();
-        this.bestIndividual = population.get(0); // Initialize with first individual
+        this.bestIndividual = population.getFirst(); // Initialize with first individual
 
         // Initialize reference AI with hand-tuned weights
         int[] currentWeights = {100000, // WIN_LOSS_WEIGHT
@@ -128,7 +128,7 @@ public class GeneticAlgorithm {
         this.random = new Random(seed);
         this.population = new ArrayList<>();
         initializePopulation();
-        this.bestIndividual = population.get(0); // Initialize with first individual
+        this.bestIndividual = population.getFirst(); // Initialize with first individual
 
         // Initialize reference AI with hand-tuned weights
         int[] currentWeights = {100000, // WIN_LOSS_WEIGHT
@@ -374,7 +374,7 @@ public class GeneticAlgorithm {
      * Custom AI class that uses custom weights for evaluation.
      */
     private class CustomAI {
-        private int[] weights;
+        private final int[] weights;
 
         public CustomAI(int[] weights) {
             this.weights = weights;
@@ -405,7 +405,7 @@ public class GeneticAlgorithm {
 
         // If only one legal move, return it
         if (legalMoves.size() == 1) {
-            return legalMoves.get(0);
+            return legalMoves.getFirst();
         }
 
         boolean maximizingPlayer = board.getCurrentPlayer() == Player.RED;
@@ -500,7 +500,7 @@ public class GeneticAlgorithm {
             tournament.add(population.get(randomIndex));
         }
 
-        return tournament.stream().max(Comparator.comparingInt(Individual::getFitness)).orElse(population.get(0));
+        return tournament.stream().max(Comparator.comparingInt(Individual::getFitness)).orElse(population.getFirst());
     }
 
     /**
@@ -563,7 +563,7 @@ public class GeneticAlgorithm {
      * @return The best individual
      */
     protected Individual findBestIndividual() {
-        return population.stream().max(Comparator.comparingInt(Individual::getFitness)).orElse(population.get(0));
+        return population.stream().max(Comparator.comparingInt(Individual::getFitness)).orElse(population.getFirst());
     }
 
     /**

@@ -61,17 +61,10 @@ public class MoveOrdering {
     }
 
     /**
-     * Overloaded method for backward compatibility
-     */
-    public static List<MovePair> orderMoves(List<MovePair> moves, Board board, boolean maximizingPlayer) {
-        return orderMoves(moves, board, maximizingPlayer, 0);
-    }
-
-    /**
      * Checks if a move is a killer move at the given ply
-     * 
+     *
      * @param move The move to check
-     * @param ply The current search depth
+     * @param ply  The current search depth
      * @return True if the move is a killer move, false otherwise
      */
     private static boolean isKillerMove(MovePair move, int ply) {
@@ -82,9 +75,9 @@ public class MoveOrdering {
 
     /**
      * Updates the killer moves table when a beta cutoff occurs
-     * 
+     *
      * @param move The move that caused the cutoff
-     * @param ply The current search depth
+     * @param ply  The current search depth
      */
     public static void updateKillerMove(MovePair move, int ply) {
         if (ply >= MAX_PLY) return;
