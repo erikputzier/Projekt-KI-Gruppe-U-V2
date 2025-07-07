@@ -78,7 +78,7 @@ public final class Eval {
         //System.out.println("guard Distance to Target: " + score);
 
         /* 7️⃣ Mobility – each legal move gives +2 (cheap tie‑breaker). */
-        //score += MoveGenerator.generateAllLegalMoves(board).size() * MOBILITY_PER_MOVE;
+        score += MoveGenerator.generateAllLegalMoves(board).size() * MOBILITY_PER_MOVE;
         //System.out.println("Mobility per move: " + score);
 
         /* 8️⃣ Blocked towers – small penalty per own tower with no moves. */

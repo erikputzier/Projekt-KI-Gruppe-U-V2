@@ -1,0 +1,54 @@
+/**
+     * Play a game between two individuals with custom evaluation weights using full AI search.
+     * Note: This method is no longer used in the current implementation, which uses a fixed
+     * reference AI for fitness evaluation. It's kept for reference purposes.
+     *
+     * @param redPlayer  Individual playing as RED
+     * @param bluePlayer Individual playing as BLUE
+     * @return The result of the game from redPlayer's perspective
+     */
+    private GameResult playGame(Individual redPlayer, Individual bluePlayer) {
+        // Create a new board with the initial position
+        Board board = new Board();
+
+        // Create custom AI instances for each player
+        CustomAI redAI = new CustomAI(redPlayer.getWeights());
+        CustomAI blueAI = new CustomAI(bluePlayer.getWeights());
+
+        // Play the game until a player wins or move limit is reached
+        int moveCount = 0;
+        long startTime = System.currentTimeMillis();
+
+        while (moveCount < MOVE_LIMIT && (System.currentTimeMillis() - startTime) < GAME_TIME_LIMIT_MS) {
+
+            // Get the best move using the appropriate AI
+            MovePair move;
+            if (board.getCurrentPlayer() == Player.RED) {
+                move = redAI.getBestMove(board);
+            } else {
+                move = blueAI.getBestMove(board);
+            }
+
+            // Apply move
+            board = Board.makeMove(move, board);
+            moveCount++;
+
+            // Check for win conditions
+            if (Board.checkplayerWon(board, Player.RED)) {
+                return GameResult.WIN;
+            } else if (Board.checkplayerWon(board, Player.BLUE)) {
+                return GameResult.LOSS;
+            }
+        }
+
+        // If no winner after move limit, determine winner based on evaluation using the current player's weights
+        int[] myWeights = (board.getCurrentPlayer() == Player.RED) ? redPlayer.getWeights() : bluePlayer.getWeights();
+        int evaluation = evaluateWithWeights(board, myWeights);
+        if (evaluation > 0) {
+            return GameResult.WIN;
+        } else if (evaluation < 0) {
+            return GameResult.LOSS;
+        } else {
+            return GameResult.DRAW;
+        }
+    }

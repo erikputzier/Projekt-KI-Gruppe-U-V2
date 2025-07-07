@@ -1,0 +1,51 @@
+
+    /**
+     * Alternative example showing how to create a custom genetic algorithm
+     * by extending the GeneticAlgorithm class.
+     * <p>
+     * This demonstrates how to customize the genetic algorithm for specific needs,
+     * such as running fewer generations or modifying the evolution process.
+     */
+    public static void customGeneticAlgorithmExample() {
+        // Create a custom genetic algorithm with modified parameters
+        // This uses our custom implementation that extends GeneticAlgorithm
+        CustomGeneticAlgorithm customGA = new CustomGeneticAlgorithm();
+
+        // Run evolution with the custom implementation
+        // This will use our overridden evolve() method
+        GeneticAlgorithm.Individual bestIndividual = customGA.evolve();
+
+        System.out.println("Custom evolution complete!");
+        System.out.println("Best individual found: " + bestIndividual.toString());
+
+        // The rest of the process is the same as with the standard implementation
+        // You can use the optimized weights in the same way
+    }
+
+
+     /**
+         * Example of a custom genetic algorithm implementation with
+         * modified parameters or behavior.
+         * <p>
+         * This class demonstrates how to extend the GeneticAlgorithm class
+         * to customize its behavior. You can override methods like:
+         * - evolve() - to change the evolution process
+         * - evaluatePopulation() - to change how individuals are evaluated
+         * - createNewPopulation() - to change how new generations are created
+         * - tournamentSelection() - to change how parents are selected
+         * - crossover() - to change how offspring are created
+         * - mutate() - to change how individuals are mutated
+         */
+        private static class CustomGeneticAlgorithm extends GeneticAlgorithm {
+
+            /**
+             * Constructor for the custom genetic algorithm.
+             * We use a fixed seed for reproducibility.
+             */
+            public CustomGeneticAlgorithm() {
+                // Use a fixed seed for reproducibility
+                super(42);
+
+                // You could also modify other parameters here by setting
+                // protected fields inherited from GeneticAlgorithm
+            }
