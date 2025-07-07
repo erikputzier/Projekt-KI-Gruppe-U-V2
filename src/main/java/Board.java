@@ -323,8 +323,3 @@ public class Board {
         return b;
     }
 }
-
-enum Player {
-    BLUE,
-    RED
-}
