@@ -160,11 +160,11 @@ public class AI {
 
         if (ttEntry != null && ttEntry.depth >= (max_plies - ply)) { // Compare with remaining depth
             ttHits++;
-            if (ttEntry.type == TranspositionTable.EXACT_SCORE) {
+            if (ttEntry.type == TranspositionTableArray.EXACT_SCORE) {
                 return ttEntry.score;
-            } else if (ttEntry.type == TranspositionTable.LOWER_BOUND) {
+            } else if (ttEntry.type == TranspositionTableArray.LOWER_BOUND) {
                 alpha = Math.max(alpha, ttEntry.score);
-            } else if (ttEntry.type == TranspositionTable.UPPER_BOUND) {
+            } else if (ttEntry.type == TranspositionTableArray.UPPER_BOUND) {
                 beta = Math.min(beta, ttEntry.score);
             }
             if (alpha >= beta) {
@@ -242,11 +242,11 @@ public class AI {
         // Store result in Transposition Table
         int entryType;
         if (bestScore <= originalAlpha) { // Failed low (upper bound)
-            entryType = TranspositionTable.UPPER_BOUND;
+            entryType = TranspositionTableArray.UPPER_BOUND;
         } else if (bestScore >= originalBeta) { // Failed high (lower bound)
-            entryType = TranspositionTable.LOWER_BOUND;
+            entryType = TranspositionTableArray.LOWER_BOUND;
         } else { // Exact score
-            entryType = TranspositionTable.EXACT_SCORE;
+            entryType = TranspositionTableArray.EXACT_SCORE;
         }
 
         short effectiveDepth = (short) (max_plies - ply);
@@ -291,11 +291,11 @@ public class AI {
 
         if (ttEntry != null && ttEntry.depth >= (max_plies - ply)) { // Compare with remaining depth
             ttHits++;
-            if (ttEntry.type == TranspositionTable.EXACT_SCORE) {
+            if (ttEntry.type == TranspositionTableArray.EXACT_SCORE) {
                 return ttEntry.score;
-            } else if (ttEntry.type == TranspositionTable.LOWER_BOUND) {
+            } else if (ttEntry.type == TranspositionTableArray.LOWER_BOUND) {
                 alpha = Math.max(alpha, ttEntry.score);
-            } else if (ttEntry.type == TranspositionTable.UPPER_BOUND) {
+            } else if (ttEntry.type == TranspositionTableArray.UPPER_BOUND) {
                 beta = Math.min(beta, ttEntry.score);
             }
             if (alpha >= beta) {
@@ -410,11 +410,11 @@ public class AI {
         // Store result in Transposition Table
         int entryType;
         if (bestScore <= originalAlpha) { // Failed low (upper bound)
-            entryType = TranspositionTable.UPPER_BOUND;
+            entryType = TranspositionTableArray.UPPER_BOUND;
         } else if (bestScore >= originalBeta) { // Failed high (lower bound)
-            entryType = TranspositionTable.LOWER_BOUND;
+            entryType = TranspositionTableArray.LOWER_BOUND;
         } else { // Exact score
-            entryType = TranspositionTable.EXACT_SCORE;
+            entryType = TranspositionTableArray.EXACT_SCORE;
         }
         transpositionTable.store(zobristHash, bestScore, (short) (max_plies - ply), (byte) entryType, bestMoveForTT);
         return bestScore;
