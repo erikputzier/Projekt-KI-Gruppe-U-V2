@@ -1,3 +1,3 @@
 How to use:
-Run class Main
+Run class Client
 Change port and host in the client class

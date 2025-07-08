@@ -16,9 +16,12 @@ public class Client {
     /* ————————————————————————————————————  configuration  ———————————————————————————————————— */
 
     //private static final String SERVER_HOST = "GAME.guard-and-towers.com";
-    private static final String SERVER_HOST = "game.guard-and-towers.com";
-    private static final int SERVER_PORT = 35000;
+    private static final String DEFAULT_SERVER_HOST = "localhost";
+    private static final int DEFAULT_SERVER_PORT = 5555;
     private static final int BUFFER_SIZE = 4_096;     // matches server-side recv-buffer
+
+    private static String SERVER_HOST;
+    private static int SERVER_PORT;
 
     /* ————————————————————————————————————  network fields  ———————————————————————————————————— */
 
@@ -36,6 +39,8 @@ public class Client {
 
     public static void main(String[] args) {
         try {
+            SERVER_HOST = (args.length > 0) ? args[0] : DEFAULT_SERVER_HOST;
+            SERVER_PORT = (args.length > 1) ? Integer.parseInt(args[1]) : DEFAULT_SERVER_PORT;
             new Client().start();
         } catch (Exception e) {
             e.printStackTrace();
