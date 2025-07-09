@@ -16,8 +16,8 @@ public class Client {
     /* ————————————————————————————————————  configuration  ———————————————————————————————————— */
 
     //private static final String SERVER_HOST = "GAME.guard-and-towers.com";
-    private static final String DEFAULT_SERVER_HOST = "localhost";
-    private static final int DEFAULT_SERVER_PORT = 5555;
+    private static final String DEFAULT_SERVER_HOST = "game.guard-and-towers.com";
+    private static final int DEFAULT_SERVER_PORT = 35004;
     private static final int BUFFER_SIZE = 4_096;     // matches server-side recv-buffer
 
     private static String SERVER_HOST;

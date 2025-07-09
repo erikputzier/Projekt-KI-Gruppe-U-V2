@@ -41,7 +41,7 @@ public class TranspositionTable {
     public void store(long zobristHash, int score, int depth, int entryType, MovePair bestMove) {
         // Always replace or store if new. More sophisticated replacement strategies can be added (e.g. deeper entries).
         TTEntry currentEntry = table.get(zobristHash);
-        if (currentEntry == null || depth >= currentEntry.depth) { // Store if new or deeper search
+        if (currentEntry == null || (depth >= currentEntry.depth && (currentEntry.entryType == LOWER_BOUND || currentEntry.entryType == UPPER_BOUND || entryType == EXACT_SCORE))) { // Store if new or deeper search
             table.put(zobristHash, new TTEntry(zobristHash, score, depth, entryType, bestMove));
         }
     }
