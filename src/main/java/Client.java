@@ -17,7 +17,7 @@ public class Client {
 
     //private static final String SERVER_HOST = "GAME.guard-and-towers.com";
     private static final String DEFAULT_SERVER_HOST = "game.guard-and-towers.com";
-    private static final int DEFAULT_SERVER_PORT = 35004;
+    private static final int DEFAULT_SERVER_PORT = 35002;
     private static final int BUFFER_SIZE = 4_096;     // matches server-side recv-buffer
 
     private static String SERVER_HOST;
@@ -159,7 +159,7 @@ public class Client {
      */
     private String chooseMove(String fen) {
         try {
-            MovePair choice = AI.pickMovePVS(new Board(fen));
+            MovePair choice = AI.pickMove(new Board(fen));
             return choice.toMove().toAlgebraic();
 
         } catch (Exception e) {                                 // any parsing / engine failure → no move

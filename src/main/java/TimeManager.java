@@ -4,15 +4,15 @@ public class TimeManager {
 
     public static long computeTimeBudget(Board board, List<MovePair> moves, long baseTimeMs) {
         double mobilityScore = computeMobilityFactor(moves);
-        double instabilityScore = computeInstabilityFactor(board, moves);
+        //double instabilityScore = computeInstabilityFactor(board, moves);
         double pressureScore = computeGuardPressureFactor(board);
         double tensionScore = computeTacticalTension(board, moves);
 
         // Gewichtung je nach Bedeutung
-        double weightedScore = mobilityScore * 0.4 + instabilityScore * 0.0 + pressureScore * 0.8 + tensionScore * 0.6;
+        double weightedScore = 1.0 + (mobilityScore * 0.5 + pressureScore * 0.8 + tensionScore * 0.6);
 
         // Normalisierung
-        double timeFactor = Math.min(4, 1.0 + weightedScore);  // max 4x Zeit
+        double timeFactor = Math.min(5, 1.0 + weightedScore);  // max 5x Zeit
 
         // Alle Faktoren ausgeben lassen um Bewertung zu überprüfen
         //System.out.println("Mobility Score: " + mobilityScore);

@@ -32,7 +32,7 @@ public class AI {
         // start global timer only ONCE
         long startTime = System.currentTimeMillis();
         int moveCounter = 0;
-        long baseTimeLimit = 4000;
+        long baseTimeLimit = 2000;
         long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
         long branchLimit = timeLimit;//(long) (timeLimit * 1.1 / legalMoves.size());
         System.out.println("Time Limit: " + timeLimit);
@@ -76,6 +76,71 @@ public class AI {
                 totalBestMove = bestMove;
             }
 
+        }
+        evaluate(moveCounter, legalMoves.size(), startTime);
+        return totalBestMove;
+    }
+
+    public static MovePair pickMoveTestVersion(Board board, int maxply) {
+        // Reset counters for each move selection
+        resetCounters();
+        resetMaxPlies();
+
+        // Reset killer moves for a new search
+        MoveOrdering.resetKillerMoves();
+
+        List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
+        boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
+        MovePair totalBestMove = null;
+        int totalBestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        // start global timer only ONCE
+        long startTime = System.currentTimeMillis();
+        int moveCounter = 0;
+        long baseTimeLimit = 2000;
+        long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
+        long branchLimit = timeLimit;//(long) (timeLimit * 1.1 / legalMoves.size());
+        System.out.println("Time Limit: " + timeLimit);
+
+        /* ---------- order moves to improve alpha-beta efficiency --------------- */
+        List<MovePair> orderedMoves = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, 0);
+
+        // Check if there's a best move in the transposition table
+        long zobristHash = ZobristHashing.computeHash(board);
+        TranspositionTableArray.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
+
+        // If a best move was found in TT, try it first
+        if (ttEntry != null && ttEntry.best != null) {
+            orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
+            orderedMoves.addFirst(ttEntry.best); // Add to the front
+        }
+        int ply = 0;
+        while (ply <= maxply) {
+            resetCounters();
+            MovePair bestMove = totalBestMove;
+            int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;;
+            for (MovePair move : orderedMoves) {
+                Board newBoard = Board.makeMove(move, board.copy());
+
+                int eval = AI.minimaxAlphaBeta(newBoard, branchLimit);
+
+                if (maximizingPlayer && eval > bestValue) {
+                    bestValue = eval;
+                    bestMove = move;
+                } else if (!maximizingPlayer && eval < bestValue) {
+                    bestValue = eval;
+                    bestMove = move;
+                }
+                moveCounter++;
+                // stop looping if we ran out of time
+                if (System.currentTimeMillis() - startTime > timeLimit) break;
+            }
+            if (System.currentTimeMillis() - startTime <= timeLimit) {
+                max_plies++;
+                totalBestValue = bestValue;
+                totalBestMove = bestMove;
+            }
+            ply++;
         }
         evaluate(moveCounter, legalMoves.size(), startTime);
         return totalBestMove;
@@ -138,13 +203,13 @@ public class AI {
             }
 
             if(maximizingPlayer){
-                alpha = Math.max(alpha, bestValue);
+                alpha = Math.max(alpha, eval);
                 if (alpha >= beta) {
                     // Store the move that caused the cutoff as a killer move
                     MoveOrdering.updateKillerMove(orderedMoves.getFirst(), 0);
                 }
             } else {
-                beta = Math.min(beta, bestValue);
+                beta = Math.min(beta, eval);
                 if (beta <= alpha) {
                     MoveOrdering.updateKillerMove(orderedMoves.getFirst(), 0);
                 }
@@ -168,15 +233,15 @@ public class AI {
                         }
                     }
 
-                    alpha = Math.max(alpha, bestValue);
+                    alpha = Math.max(alpha, eval);
                     if (alpha >= beta) {
                         cutoffs++;
                         // Store the move that caused the cutoff as a killer move
-                        MoveOrdering.updateKillerMove(orderedMoves.getFirst(), 0);
+                        MoveOrdering.updateKillerMove(move, 0);
                         break;
                     }
                 } else {
-                    eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit, beta+1, beta);
+                    eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit, beta-1, beta);
 
                     if(eval > alpha && eval < beta){
                         //re-search mit Fenster [alpha;beta]
@@ -187,7 +252,140 @@ public class AI {
                         }
                     }
 
-                    beta = Math.min(beta, bestValue);
+                    beta = Math.min(beta, eval);
+                    if (beta <= alpha) {
+                        MoveOrdering.updateKillerMove(move, 0);
+                    }
+                }
+
+                if (maximizingPlayer && eval > bestValue) {
+                    bestValue = eval;
+                    bestMove = move;
+                } else if (!maximizingPlayer && eval < bestValue) {
+                    bestValue = eval;
+                    bestMove = move;
+                }
+                moveCounter++;
+                // stop looping if we ran out of time
+                if (System.currentTimeMillis() - startTime > timeLimit) break;
+            }
+            if (System.currentTimeMillis() - startTime <= timeLimit) {
+                totalBestMove = bestMove;
+                totalBestValue = bestValue;
+                max_plies++;
+            }
+        }
+        evaluate(moveCounter, legalMoves.size(), startTime);
+        return totalBestMove;
+    }
+
+    public static MovePair pickMovePVSTestVersion(Board board, int maxply) {
+        // Reset counters for each move selection
+        resetCounters();
+        resetMaxPlies();
+
+        // Reset killer moves for a new search
+        MoveOrdering.resetKillerMoves();
+
+        List<MovePair> legalMoves = MoveGenerator.generateAllLegalMoves(board);
+        boolean maximizingPlayer = board.getCurrentPlayer() != Player.BLUE;
+        MovePair totalBestMove = null;
+        int totalBestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        // start global timer only ONCE
+        long startTime = System.currentTimeMillis();
+        int moveCounter = 0;
+        long baseTimeLimit = 2000;
+        long timeLimit = TimeManager.computeTimeBudget(board, legalMoves, baseTimeLimit);
+        long branchLimit = (long) (timeLimit * 1.1 / legalMoves.size());
+        System.out.println("Time Limit: " + timeLimit);
+        Integer alpha;
+        Integer beta;
+
+        /* ---------- order moves to improve alpha-beta efficiency --------------- */
+        List<MovePair> orderedMoves = MoveOrdering.orderMoves(legalMoves, board, maximizingPlayer, 0);
+
+        // Check if there's a best move in the transposition table
+        long zobristHash = ZobristHashing.computeHash(board);
+        TranspositionTableArray.TTEntry ttEntry = transpositionTable.retrieve(zobristHash);
+
+        // If a best move was found in TT, try it first
+        if (ttEntry != null && ttEntry.best != null) {
+            orderedMoves.remove(ttEntry.best); // Remove if present to avoid duplicate
+            orderedMoves.addFirst(ttEntry.best); // Add to the front
+        }
+        int ply = 0;
+        while (ply <= maxply) {
+            resetCounters();
+            alpha = Integer.MIN_VALUE;
+            beta = Integer.MAX_VALUE;
+            MovePair bestMove = null;
+            int bestValue = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+            //Besten Move mit vollem Alpha Beta Fenster durchsuchen
+            Board newBoard = Board.makeMove(orderedMoves.getFirst(), board.copy());
+            int eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit, alpha, beta);
+
+
+            if (maximizingPlayer && eval > bestValue) {
+                bestValue = eval;
+                bestMove = orderedMoves.getFirst();
+            } else if (!maximizingPlayer && eval < bestValue) {
+                bestValue = eval;
+                bestMove = orderedMoves.getFirst();
+            }
+
+            if(maximizingPlayer){
+                alpha = Math.max(alpha, eval);
+                if (alpha >= beta) {
+                    // Store the move that caused the cutoff as a killer move
+                    MoveOrdering.updateKillerMove(orderedMoves.getFirst(), 0);
+                }
+            } else {
+                beta = Math.min(beta, eval);
+                if (beta <= alpha) {
+                    MoveOrdering.updateKillerMove(orderedMoves.getFirst(), 0);
+                }
+            }
+
+            orderedMoves.removeFirst();
+            moveCounter++;
+
+            for (MovePair move : orderedMoves) {
+                newBoard = Board.makeMove(move, board.copy());
+
+                if(maximizingPlayer){
+                    eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit, alpha, alpha+1);
+
+                    if(eval > alpha && eval < beta){
+                        //re-search mit Fenster [alpha;beta]
+                        reSearches++;
+                        eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit, alpha, beta);
+                        if(eval < beta){
+                            beta = eval;
+                        }
+                    }
+
+                    alpha = Math.max(alpha, eval);
+                    if (alpha >= beta) {
+                        cutoffs++;
+                        // Store the move that caused the cutoff as a killer move
+                        MoveOrdering.updateKillerMove(orderedMoves.getFirst(), 0);
+                        break;
+                    }
+                } else {
+                    eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit, beta-1, beta);
+
+                    if(eval > alpha && eval < beta){
+                        //re-search mit Fenster [alpha;beta]
+                        reSearches++;
+                        eval = AI.minimaxAlphaBetaPVS(newBoard, branchLimit, alpha, beta);
+                        if(eval < beta){
+                            beta = eval;
+                        }
+                    }
+
+                    beta = Math.min(beta, eval);
                     if (beta <= alpha) {
                         MoveOrdering.updateKillerMove(orderedMoves.getFirst(), 0);
                     }
@@ -202,13 +400,14 @@ public class AI {
                 }
                 moveCounter++;
                 // stop looping if we ran out of time
-                //if (System.currentTimeMillis() - startTime > timeLimit) break;
+                if (System.currentTimeMillis() - startTime > timeLimit) break;
             }
             if (System.currentTimeMillis() - startTime <= timeLimit) {
                 totalBestMove = bestMove;
                 totalBestValue = bestValue;
                 max_plies++;
             }
+            ply++;
         }
         evaluate(moveCounter, legalMoves.size(), startTime);
         return totalBestMove;
@@ -298,7 +497,7 @@ public class AI {
                     bestScore = score;
                     bestMoveForTT = m;
                 }
-                alpha = Math.max(alpha, bestScore);
+                alpha = Math.max(alpha, score);
                 if (alpha >= beta) {
                     cutoffs++;
                     // Store the move that caused the cutoff as a killer move
@@ -315,7 +514,7 @@ public class AI {
                     bestScore = score;
                     bestMoveForTT = m;
                 }
-                beta = Math.min(beta, bestScore);
+                beta = Math.min(beta, score);
                 if (beta <= alpha) {
                     cutoffs++;
                     // Store the move that caused the cutoff as a killer move
@@ -398,13 +597,13 @@ public class AI {
         /* ---------- game-ending positions -------------------------------------- */
         Player prev = (board.getCurrentPlayer() == Player.RED) ? Player.BLUE : Player.RED;
         if (Board.checkplayerWon(board, prev)) {         // last mover just won
-            return Eval.naiveEvaluate(board);
+            return Eval.evaluate(board);
         }
 
         /* ---------- enumerate legal moves -------------------------------------- */
         List<MovePair> moves = MoveGenerator.generateAllLegalMoves(board);
         if (moves.isEmpty()) {                            // stalemate or no moves
-            return Eval.naiveEvaluate(board);
+            return Eval.evaluate(board);
         }
 
         /* ---------- order moves to improve alpha-beta efficiency --------------- */
@@ -451,7 +650,7 @@ public class AI {
                     bestScore = score;
                     bestMoveForTT = m;
                 }
-                alpha = Math.max(alpha, bestScore);
+                alpha = Math.max(alpha, score);
                 if (alpha >= beta) {
                     cutoffs++;
                     // Store the move that caused the cutoff as a killer move
@@ -491,7 +690,7 @@ public class AI {
                     bestScore = score;
                     bestMoveForTT = m;
                 }
-                beta = Math.min(beta, bestScore);
+                beta = Math.min(beta, score);
                 if (beta <= alpha) {
                     cutoffs++;
                     // Store the move that caused the cutoff as a killer move
