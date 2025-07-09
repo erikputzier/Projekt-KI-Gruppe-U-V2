@@ -3,7 +3,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -31,7 +30,7 @@ public class KillerHeuristicTest {
         // now reset
         MoveOrdering.resetKillerMoves();
         List<MovePair> ordered = MoveOrdering.orderMoves(moves, b, true, 0);
-        // m should not be first any more
+        // m should not be first anymore
         assertNotEquals(m, ordered.getFirst());
     }
 
