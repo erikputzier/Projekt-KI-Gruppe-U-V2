@@ -122,9 +122,6 @@ public class GeneticAlgorithmTest {
     public void testEdgeCases() {
         System.out.println("[DEBUG_LOG] Starting edge cases test");
 
-        // Create a genetic algorithm
-        GeneticAlgorithm ga = new GeneticAlgorithm(42);
-
         // Test with minimum weights
         int[] minWeights = {90000,  // WIN_LOSS_WEIGHT
                 50,     // MATERIAL_PER_PIECE
@@ -158,7 +155,5 @@ public class GeneticAlgorithmTest {
         // Verify that the individuals have the expected weights
         assertArrayEquals("Min individual should have min weights", minWeights, minIndividual.getWeights());
         assertArrayEquals("Max individual should have max weights", maxWeights, maxIndividual.getWeights());
-
-        System.out.println("[DEBUG_LOG] Edge cases test completed");
     }
 }
